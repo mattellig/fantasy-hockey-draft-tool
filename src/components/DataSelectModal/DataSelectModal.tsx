@@ -1,16 +1,23 @@
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import Button from '../Button/Button';
 import Link from '../Link/Link';
 import Modal from '../Modal/Modal';
 
-const DataSelectModal = ({ onCancel, onSelect, open }) => {
-    const fileInput = React.useRef(null);
+interface DataSelectModalProps {
+    onCancel: (value: boolean) => void;
+    onSelect: (dataSource: File | string) => void;
+    open: boolean;
+}
+
+const DataSelectModal = ({ onCancel, onSelect, open }: DataSelectModalProps): JSX.Element => {
+    const fileInput = React.useRef<HTMLInputElement>(null);
 
     const handleInput = () => {
+        if (!fileInput.current) return;
+
         fileInput.current.setCustomValidity('');
 
-        const file = fileInput.current.files[0];
+        const file = fileInput.current.files?.[0];
         if (!file) {
             return;
         }
@@ -21,10 +28,12 @@ const DataSelectModal = ({ onCancel, onSelect, open }) => {
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        onSelect(fileInput.current.files[0]);
+        if (fileInput.current && fileInput.current.files) {
+            onSelect(fileInput.current.files[0]);
+        }
     };
 
     return (
@@ -76,12 +85,6 @@ const DataSelectModal = ({ onCancel, onSelect, open }) => {
             </form>
         </Modal>
     );
-};
-
-DataSelectModal.propTypes = {
-    onCancel: PropTypes.func.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    open: PropTypes.bool,
 };
 
 export default DataSelectModal;

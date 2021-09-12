@@ -1,5 +1,5 @@
 import { UploadIcon } from '@heroicons/react/solid';
-import Papa from 'papaparse';
+import Papa, { ParseError } from 'papaparse';
 import * as React from 'react';
 import Button from './components/Button/Button';
 import DataSelectModal from './components/DataSelectModal/DataSelectModal';
@@ -37,10 +37,10 @@ const headings = [
     { title: 'SO', align: 'right' },
 ];
 
-const App = () => {
-    const [data, setData] = React.useState();
-    const [dataSource, setDataSource] = React.useState(`${window.location.href}/sample.csv`);
-    const [errors, setErrors] = React.useState([]);
+const App = (): JSX.Element => {
+    const [data, setData] = React.useState<any[]>();
+    const [dataSource, setDataSource] = React.useState<File | string>(`${window.location.href}/sample.csv`);
+    const [errors, setErrors] = React.useState<ParseError[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [showDataSelector, setShowDataSelector] = React.useState(false);
 
@@ -66,7 +66,7 @@ const App = () => {
         });
     }, [dataSource]);
 
-    const handleDataSourceSelected = (dataSource) => {
+    const handleDataSourceSelected = (dataSource: File | string) => {
         setDataSource(dataSource);
         setShowDataSelector(false);
     };

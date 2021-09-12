@@ -1,7 +1,12 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
-const Link = ({ children, onClick, url }) => (
+interface LinkProps {
+    children?: React.ReactNode;
+    onClick?: React.MouseEventHandler;
+    url?: string;
+}
+
+const Link = ({ children, onClick, url }: LinkProps): JSX.Element => (
     <a
         href={url}
         onClick={onClick}
@@ -10,11 +15,5 @@ const Link = ({ children, onClick, url }) => (
         {children}
     </a>
 );
-
-Link.propTypes = {
-    children: PropTypes.node,
-    onClick: PropTypes.func,
-    url: PropTypes.string,
-};
 
 export default Link;

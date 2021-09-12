@@ -1,8 +1,22 @@
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-const DataTable = ({ children, headings = [] }) => (
+interface DataTableProps {
+    children?: React.ReactNode;
+    headings?: { title: string, align?: 'left' | 'center' | 'right' | string }[];
+}
+
+interface RowProps {
+    children?: React.ReactNode;
+}
+
+interface CellProps {
+    align?: 'left' | 'center' | 'right';
+    children?: React.ReactNode;
+    colSpan?: number;
+}
+
+const DataTable = ({ children, headings = [] }: DataTableProps): JSX.Element => (
     <div className="relative overflow-hidden">
         <div className="overflow-x-auto">
             <table className="w-full">
@@ -32,22 +46,13 @@ const DataTable = ({ children, headings = [] }) => (
     </div>
 );
 
-DataTable.propTypes = {
-    children: PropTypes.node,
-    headings: PropTypes.arrayOf(PropTypes.object),
-};
-
-const Row = ({ children }) => (
+const Row = ({ children }: RowProps): JSX.Element => (
     <tr className="bg-white hover:bg-gray-50 transition-colors">
         {children}
     </tr>
 );
 
-Row.propTypes = {
-    children: PropTypes.node,
-};
-
-const Cell = ({ align, children, colSpan }) => (
+const Cell = ({ align, children, colSpan }: CellProps): JSX.Element => (
     <td
         align={align}
         colSpan={colSpan}
@@ -56,12 +61,6 @@ const Cell = ({ align, children, colSpan }) => (
         {children}
     </td>
 );
-
-Cell.propTypes = {
-    align: PropTypes.string,
-    children: PropTypes.node,
-    colSpan: PropTypes.number,
-};
 
 DataTable.Cell = Cell;
 DataTable.Row = Row;

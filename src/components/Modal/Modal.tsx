@@ -1,13 +1,27 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/solid';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-const Modal = (props) => {
+interface ModalProps {
+    children?: React.ReactNode;
+    onClose: (value: boolean) => void;
+    open?: boolean;
+    title: string;
+}
+
+interface SectionProps {
+    children?: React.ReactNode;
+}
+
+interface FooterProps {
+    children?: React.ReactNode;
+}
+
+const Modal = (props: ModalProps) => {
     const {
         children,
         onClose,
-        open,
+        open = false,
         title,
     } = props;
 
@@ -65,32 +79,17 @@ const Modal = (props) => {
     );
 };
 
-Modal.propTypes = {
-    children: PropTypes.node,
-    onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool,
-    title: PropTypes.string.isRequired,
-};
-
-const Section = ({ children }) => (
+const Section = ({ children }: SectionProps): JSX.Element => (
     <div className="pb-6 text-gray-700">
         {children}
     </div>
 );
 
-Section.propTypes = {
-    children: PropTypes.node,
-};
-
-const Footer = ({ children }) => (
+const Footer = ({ children }: FooterProps): JSX.Element => (
     <div className="flex flex-row-reverse gap-2">
         {children}
     </div>
 );
-
-Footer.propTypes = {
-    children: PropTypes.node,
-};
 
 Modal.Section = Section;
 Modal.Footer = Footer;

@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import sampleDataUrl from '../../sample.csv?url';
 import Button from '../Button/Button';
 import Link from '../Link/Link';
 import Modal from '../Modal/Modal';
@@ -38,7 +37,7 @@ const DataSelectModal = ({ onCancel, onSelect, open }) => {
                 <Modal.Section>
                     <ol className="list-decimal list-inside">
                         <li>
-                            <Link url={sampleDataUrl}>
+                            <Link url="/sample.csv">
                                 Download the sample.csv file
                             </Link>
                         </li>

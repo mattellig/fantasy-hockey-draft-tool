@@ -5,7 +5,6 @@ import Button from './components/Button/Button';
 import DataSelectModal from './components/DataSelectModal/DataSelectModal';
 import DataTable from './components/DataTable/DataTable';
 import Spinner from './components/Spinner/Spinner';
-import sampleDataUrl from './sample.csv?url';
 
 const headings = [
     { title: 'Name' },
@@ -40,7 +39,7 @@ const headings = [
 
 const App = () => {
     const [data, setData] = React.useState();
-    const [dataSource, setDataSource] = React.useState(`${window.location.href}${sampleDataUrl}`);
+    const [dataSource, setDataSource] = React.useState(`${window.location.href}/sample.csv`);
     const [errors, setErrors] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const [showDataSelector, setShowDataSelector] = React.useState(false);

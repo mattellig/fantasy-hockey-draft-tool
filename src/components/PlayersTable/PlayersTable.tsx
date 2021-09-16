@@ -42,6 +42,21 @@ const fixedHeadings: DataTableHeading[] = [
     { title: 'GP', align: 'right' },
 ];
 
+const formatStat = (value: number | null, key: keyof ScoringSettings) => {
+    if (value === null) {
+        return null;
+    }
+
+    switch (key) {
+        case 'goalsAgainstAverage':
+            return value.toFixed(2);
+        case 'savePercentage':
+            return value.toFixed(3);
+        default:
+            return value.toFixed(0);
+    }
+};
+
 const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element => {
     const [settings] = useSettings();
 
@@ -92,14 +107,14 @@ const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element 
                         {row.fantasyPoints.toFixed(1)}
                     </DataTable.Cell>
                     <DataTable.Cell align="right">
-                        {row.averageDraftPosition}
+                        {row.averageDraftPosition?.toFixed(1)}
                     </DataTable.Cell>
                     <DataTable.Cell align="right">
                         {row.gamesPlayed}
                     </DataTable.Cell>
                     {scoringSettingEntries.map(([key, value]) => value ? (
                         <DataTable.Cell key={key} align="right">
-                            {row.totals[key as keyof PlayerStats]}
+                            {formatStat(row.totals[key as keyof PlayerStats], key as keyof ScoringSettings)}
                         </DataTable.Cell>
                     ) : null)}
                 </DataTable.Row>

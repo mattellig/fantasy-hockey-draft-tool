@@ -57,7 +57,7 @@ const Modal = (props: ModalProps) => {
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <div className="relative inline-block w-full max-w-md bg-white rounded-xl shadow-2xl text-left align-middle">
+                        <div className="relative inline-block w-full max-w-lg bg-white rounded-xl shadow-2xl text-left align-middle">
                             <div className="p-6">
                                 <Dialog.Title as="h2" className="pb-6 text-base font-bold leading-8 text-gray-800">
                                     {title}

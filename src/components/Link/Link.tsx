@@ -2,7 +2,7 @@ import * as React from 'react';
 
 interface LinkProps {
     children?: React.ReactNode;
-    onClick?: React.MouseEventHandler;
+    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
     url?: string;
 }
 

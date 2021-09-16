@@ -44,14 +44,14 @@ const DataSelectModal = ({ onCancel, onSelect, open }: DataSelectModalProps): JS
         >
             <form onSubmit={handleSubmit}>
                 <Modal.Section>
-                    <ol className="list-decimal list-inside">
+                    <ol className="list-decimal list-inside text-gray-700">
                         <li>
                             <Link url="/sample.csv">
                                 Download the sample.csv file
                             </Link>
                         </li>
                         <li>
-                            Get projection data from your favorite source (e.g. ESPN, Yahoo, etc.)
+                            Get projection data (season totals) from your favorite source (e.g. ESPN, Yahoo, etc.)
                         </li>
                         <li>
                             Replace the sample data with your projections

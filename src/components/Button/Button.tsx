@@ -7,7 +7,7 @@ interface ButtonProps {
     disabled?: boolean;
     icon?: React.ReactNode;
     loading?: boolean;
-    onClick?: React.MouseEventHandler;
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
     primary?: boolean;
     submit?: boolean;
 }

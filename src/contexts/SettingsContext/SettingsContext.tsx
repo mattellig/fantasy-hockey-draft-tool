@@ -64,21 +64,21 @@ const SettingsContext = React.createContext<SettingsAndSetter | undefined>(undef
 
 const storageKey = 'fhdt-settings';
 
-const SettingsProvider = ({ children }: SettingsProviderProps): JSX.Element => {
-    const [settings, setSettings] = React.useState(defaultSettings);
-
-    React.useEffect(() => {
-        const localData = localStorage.getItem(storageKey);
-        if (!localData) {
-            return;
-        }
-
+const getDefaultSettings = () => {
+    const localData = localStorage.getItem(storageKey);
+    if (localData) {
         try {
-            setSettings(JSON.parse(localData));
+            return JSON.parse(localData);
         } catch (error) {
             console.error('Error parsing local settings:', error);
         }
-    }, []);
+    }
+
+    return defaultSettings;
+};
+
+const SettingsProvider = ({ children }: SettingsProviderProps): JSX.Element => {
+    const [settings, setSettings] = React.useState(getDefaultSettings());
 
     const updateSettings = (newSettings: Settings) => {
         localStorage.setItem(storageKey, JSON.stringify(newSettings));

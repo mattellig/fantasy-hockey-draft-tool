@@ -2,7 +2,7 @@ import Papa, { ParseError } from 'papaparse';
 import * as React from 'react';
 import { useSettings } from '../../contexts/SettingsContext/SettingsContext';
 
-interface PlayerStats {
+export interface PlayerStats {
     goals: number | null;
     assists: number | null;
     points: number | null;

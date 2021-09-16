@@ -1,9 +1,14 @@
 import clsx from 'clsx';
 import * as React from 'react';
 
+export interface DataTableHeading {
+    align?: 'left' | 'center' | 'right' | string;
+    title: string;
+}
+
 interface DataTableProps {
     children?: React.ReactNode;
-    headings?: { title: string, align?: 'left' | 'center' | 'right' | string }[];
+    headings?: DataTableHeading[];
 }
 
 interface RowProps {

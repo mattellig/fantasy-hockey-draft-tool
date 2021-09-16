@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
-import DataTable from '../DataTable/DataTable';
+import { ScoringSettings, useSettings } from '../../contexts/SettingsContext/SettingsContext';
+import { PlayerData, PlayerStats } from '../../hooks/usePlayerData/usePlayerData';
+import DataTable, { DataTableHeading } from '../DataTable/DataTable';
 import Spinner from '../Spinner/Spinner';
 
 interface PlayersTableProps {
@@ -8,42 +9,64 @@ interface PlayersTableProps {
     loadingMessage: string | undefined;
 }
 
-const headings = [
+const settingsToAcronymMap: Record<keyof ScoringSettings, string> = {
+    goals: 'G',
+    assists: 'A',
+    points: 'PTS',
+    plusMinus: '+/-',
+    penaltyMinutes: 'PIM',
+    powerplayGoals: 'PPG',
+    powerplayAssists: 'PPA',
+    powerplayPoints: 'PPP',
+    gameWinningGoals: 'GWG',
+    shotsOnGoal: 'SOG',
+    faceoffsWon: 'FOW',
+    faceoffsLost: 'FOL',
+    hits: 'HIT',
+    blocks: 'BLK',
+    wins: 'W',
+    losses: 'L',
+    goalsAgainst: 'GA',
+    goalsAgainstAverage: 'GAA',
+    saves: 'SV',
+    savePercentage: 'SV%',
+    shutouts: 'SO',
+};
+
+const fixedHeadings: DataTableHeading[] = [
     { title: 'Name' },
     { title: 'Team', align: 'center' },
     { title: 'Pos', align: 'center' },
     { title: 'FP', align: 'right' },
     { title: 'ADP', align: 'right' },
     { title: 'GP', align: 'right' },
-    { title: 'G', align: 'right' },
-    { title: 'A', align: 'right' },
-    { title: 'PTS', align: 'right' },
-    { title: '+/-', align: 'right' },
-    { title: 'PIM', align: 'right' },
-    { title: 'PPG', align: 'right' },
-    { title: 'PPA', align: 'right' },
-    { title: 'PPP', align: 'right' },
-    { title: 'GWG', align: 'right' },
-    { title: 'SOG', align: 'right' },
-    { title: 'FOW', align: 'right' },
-    { title: 'FOL', align: 'right' },
-    { title: 'HIT', align: 'right' },
-    { title: 'BLK', align: 'right' },
-    { title: 'W', align: 'right' },
-    { title: 'L', align: 'right' },
-    { title: 'GA', align: 'right' },
-    { title: 'GAA', align: 'right' },
-    { title: 'SV', align: 'right' },
-    { title: 'SV%', align: 'right' },
-    { title: 'SO', align: 'right' },
 ];
 
 const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element => {
+    const [settings] = useSettings();
+
+    const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
+
+    const tableHeadings = React.useMemo(() => {
+        const headings = [...fixedHeadings];
+
+        for (const [key, value] of scoringSettingEntries) {
+            if (value) {
+                headings.push({
+                    title: settingsToAcronymMap[key as keyof ScoringSettings],
+                    align: 'right',
+                });
+            }
+        }
+
+        return headings;
+    }, [scoringSettingEntries]);
+
     return (
-        <DataTable headings={headings}>
+        <DataTable headings={tableHeadings}>
             {loadingMessage ? (
                 <DataTable.Row>
-                    <DataTable.Cell align="center" colSpan={headings.length}>
+                    <DataTable.Cell align="center" colSpan={tableHeadings.length}>
                         <div className="flex items-center justify-center gap-2">
                             <div className="text-blue-500">
                                 <Spinner />
@@ -74,73 +97,15 @@ const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element 
                     <DataTable.Cell align="right">
                         {row.gamesPlayed}
                     </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.goals}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.assists}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.points}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.plusMinus}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.penaltyMinutes}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.powerplayGoals}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.powerplayAssists}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.powerplayPoints}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.gameWinningGoals}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.shotsOnGoal}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.faceoffsWon}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.faceoffsLost}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.hits}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.blocks}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.wins}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.losses}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.goalsAgainst}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.goalsAgainstAverage}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.saves}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.savePercentage}
-                    </DataTable.Cell>
-                    <DataTable.Cell align="right">
-                        {row.totals.shutouts}
-                    </DataTable.Cell>
+                    {scoringSettingEntries.map(([key, value]) => value ? (
+                        <DataTable.Cell key={key} align="right">
+                            {row.totals[key as keyof PlayerStats]}
+                        </DataTable.Cell>
+                    ) : null)}
                 </DataTable.Row>
             )) : (
                 <DataTable.Row>
-                    <DataTable.Cell align="center" colSpan={headings.length}>
+                    <DataTable.Cell align="center" colSpan={tableHeadings.length}>
                         <p className="text-sm text-gray-500">
                             No results found.
                         </p>

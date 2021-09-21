@@ -11,7 +11,16 @@ interface SettingsModalProps {
     open: boolean;
 }
 
-const rosterSizeOptions = ['0', '1', '2', '3', '4', '5'];
+const rosterSizeOptions = ['1', '2', '3', '4', '5'];
+const defenseRosterSizeOptions = [
+    ...rosterSizeOptions,
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+];
+
 const teamCountOptions = [
     '4',
     '5',
@@ -130,7 +139,7 @@ const SettingsModal = ({ onClose, open }: SettingsModalProps): JSX.Element => {
                                     id="defense-select"
                                     label="Defense (D)"
                                     onChange={(e) => handleChangeRosterSetting(e, 'defense')}
-                                    options={rosterSizeOptions}
+                                    options={defenseRosterSizeOptions}
                                     value={String(localSettings.roster.defense)}
                                 />
                             </div>

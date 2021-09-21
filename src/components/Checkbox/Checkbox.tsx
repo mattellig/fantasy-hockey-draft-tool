@@ -3,11 +3,19 @@ import useControlledState from '../../hooks/useControlledState/useControlledStat
 
 interface CheckboxProps {
     checked?: boolean;
+    id: string;
     label: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-const Checkbox = ({ checked: checkedProp = false, label, onChange }: CheckboxProps): JSX.Element => {
+const Checkbox = (props: CheckboxProps): JSX.Element => {
+    const {
+        checked: checkedProp = false,
+        id,
+        label,
+        onChange,
+    } = props;
+
     const [checked, setChecked] = useControlledState(checkedProp);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,9 +27,10 @@ const Checkbox = ({ checked: checkedProp = false, label, onChange }: CheckboxPro
     };
 
     return (
-        <label className="inline-flex items-center py-1 cursor-pointer">
+        <label htmlFor={id} className="inline-flex items-center py-1 cursor-pointer">
             <input
                 checked={checked}
+                id={id}
                 onChange={handleChange}
                 type="checkbox"
                 className="h-[18px] w-[18px] mr-2 rounded-sm border-2 border-gray-500 cursor-pointer hover:border-gray-400 focus:ring-offset-1 transition"

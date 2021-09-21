@@ -1,5 +1,13 @@
 import * as React from 'react';
 
+export interface RosterSettings {
+    center: number;
+    defense: number;
+    goalie: number;
+    leftWing: number;
+    rightWing: number;
+}
+
 export interface ScoringSettings {
     goals: boolean;
     assists: boolean;
@@ -25,7 +33,9 @@ export interface ScoringSettings {
 }
 
 export interface Settings {
+    roster: RosterSettings;
     scoring: ScoringSettings;
+    teams: number;
 }
 
 type SettingsAndSetter = [Settings, (newSettings: Settings) => void];
@@ -35,6 +45,13 @@ interface SettingsProviderProps {
 }
 
 const defaultSettings: Settings = {
+    roster: {
+        center: 2,
+        defense: 4,
+        goalie: 2,
+        leftWing: 2,
+        rightWing: 2,
+    },
     scoring: {
         goals: true,
         assists: true,
@@ -58,6 +75,7 @@ const defaultSettings: Settings = {
         savePercentage: true,
         shutouts: true,
     },
+    teams: 10,
 };
 
 const SettingsContext = React.createContext<SettingsAndSetter | undefined>(undefined);
@@ -68,7 +86,9 @@ const getDefaultSettings = () => {
     const localData = localStorage.getItem(storageKey);
     if (localData) {
         try {
-            return JSON.parse(localData);
+            const parsedSettings = JSON.parse(localData);
+
+            return { ...defaultSettings, ...parsedSettings };
         } catch (error) {
             console.error('Error parsing local settings:', error);
         }

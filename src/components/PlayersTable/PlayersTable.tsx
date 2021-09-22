@@ -6,7 +6,7 @@ import Spinner from '../Spinner/Spinner';
 
 interface PlayersTableProps {
     data: PlayerData[] | undefined;
-    loadingMessage: string | undefined;
+    loading: boolean;
 }
 
 const settingsToAcronymMap: Record<keyof ScoringSettings, string> = {
@@ -34,11 +34,14 @@ const settingsToAcronymMap: Record<keyof ScoringSettings, string> = {
 };
 
 const fixedHeadings: DataTableHeading[] = [
+    { title: 'Rank', align: 'right' },
     { title: 'Name' },
     { title: 'Team', align: 'center' },
     { title: 'Pos', align: 'center' },
     { title: 'FP', align: 'right' },
+    { title: 'VORP', align: 'right' },
     { title: 'ADP', align: 'right' },
+    { title: 'Diff.', align: 'right' },
     { title: 'GP', align: 'right' },
 ];
 
@@ -57,7 +60,7 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
     }
 };
 
-const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element => {
+const PlayersTable = ({ data, loading }: PlayersTableProps): JSX.Element => {
     const [settings] = useSettings();
 
     const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
@@ -77,9 +80,15 @@ const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element 
         return headings;
     }, [scoringSettingEntries]);
 
+    const sortedData = React.useMemo(() => {
+        return data
+            ? [...data].sort((a, b) => b.valueOverReplacement - a.valueOverReplacement)
+            : undefined;
+    }, [data]);
+
     return (
         <DataTable headings={tableHeadings}>
-            {loadingMessage ? (
+            {loading ? (
                 <DataTable.Row>
                     <DataTable.Cell align="center" colSpan={tableHeadings.length}>
                         <div className="flex items-center justify-center gap-2">
@@ -87,13 +96,16 @@ const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element 
                                 <Spinner />
                             </div>
                             <div className="text-sm text-gray-500 animate-pulse">
-                                {loadingMessage}...
+                                Parsing data...
                             </div>
                         </div>
                     </DataTable.Cell>
                 </DataTable.Row>
-            ) : data?.length ? data.map((row) => (
+            ) : sortedData?.length ? sortedData.map((row) => (
                 <DataTable.Row key={`${row.name}-${row.position}`}>
+                    <DataTable.Cell align="right">
+                        {row.rank}
+                    </DataTable.Cell>
                     <DataTable.Cell>
                         {row.name}
                     </DataTable.Cell>
@@ -107,7 +119,13 @@ const PlayersTable = ({ data, loadingMessage }: PlayersTableProps): JSX.Element 
                         {row.fantasyPoints.toFixed(1)}
                     </DataTable.Cell>
                     <DataTable.Cell align="right">
+                        {row.valueOverReplacement.toFixed(1)}
+                    </DataTable.Cell>
+                    <DataTable.Cell align="right">
                         {row.averageDraftPosition?.toFixed(1)}
+                    </DataTable.Cell>
+                    <DataTable.Cell align="right">
+                        {row.difference?.toFixed(1)}
                     </DataTable.Cell>
                     <DataTable.Cell align="right">
                         {row.gamesPlayed}

@@ -13,7 +13,7 @@ const App = (): JSX.Element => {
     const {
         data,
         errors,
-        loadingMessage,
+        loading,
         setDataSource,
     } = usePlayerData();
 
@@ -40,7 +40,7 @@ const App = (): JSX.Element => {
                     </p>
                 </div>
             ) : null}
-            <PlayersTable data={data} loadingMessage={loadingMessage} />
+            <PlayersTable data={data} loading={loading} />
             <DataSelectModal
                 onCancel={setShowDataSelector}
                 onSelect={handleDataSourceSelected}

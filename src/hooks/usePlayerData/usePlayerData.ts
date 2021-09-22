@@ -36,7 +36,6 @@ export interface PlayerData {
     averageDraftPosition: number | null;
     difference: number | null;
     gamesPlayed: number | null;
-    averages: PlayerStats;
     totals: PlayerStats;
     zScores: PlayerStats;
 }
@@ -44,7 +43,7 @@ export interface PlayerData {
 interface PlayerDataState {
     data: PlayerData[] | undefined;
     errors: Papa.ParseError[];
-    loadingMessage: string | undefined;
+    loading: boolean;
     setDataSource: React.Dispatch<React.SetStateAction<File | string>>;
 }
 
@@ -77,7 +76,6 @@ interface RawPlayerData {
     SO: number | null;
 }
 
-const averagesCategories = ['savePercentage', 'goalsAgainstAverage'];
 const negativeCategories = ['faceoffsLost', 'goalsAgainstAverage', 'goalsAgainst', 'losses'];
 
 const rawDataToStatsMap: Record<string, keyof PlayerStats> = {
@@ -128,6 +126,14 @@ const statsToRawDataMap: Record<string, keyof RawPlayerData> = {
     shutouts: 'SO',
 };
 
+const topOneHundredSelections = {
+    center: 24,
+    leftWing: 19,
+    rightWing: 19,
+    defense: 18,
+    goalie: 20,
+};
+
 const getAverageAndStdDev = (data: RawPlayerData[], category: keyof RawPlayerData) => {
     if (data.length === 0) return { avg: 0, stdev: 0 };
 
@@ -148,17 +154,19 @@ const getAverageAndStdDev = (data: RawPlayerData[], category: keyof RawPlayerDat
     return { avg, stdev };
 };
 
+const sortPlayerData = (a: PlayerData, b: PlayerData) => b.fantasyPoints - a.fantasyPoints;
+
 const usePlayerData = (): PlayerDataState => {
     const [data, setData] = React.useState<PlayerData[]>();
     const [dataSource, setDataSource] = React.useState<File | string>(`${window.location.href}/sample.csv`);
     const [errors, setErrors] = React.useState<ParseError[]>([]);
-    const [loadingMessage, setLoadingMessage] = React.useState<string | undefined>();
+    const [loading, setLoading] = React.useState(false);
     const [rawData, setRawData] = React.useState<RawPlayerData[]>();
 
     const [settings] = useSettings();
 
     React.useEffect(() => {
-        setLoadingMessage('Parsing data file');
+        setLoading(true);
 
         Papa.parse<RawPlayerData>(dataSource, {
             complete: (results) => {
@@ -175,16 +183,12 @@ const usePlayerData = (): PlayerDataState => {
     React.useEffect(() => {
         if (!rawData) return;
 
-        setLoadingMessage('Calculating standard deviations');
-
         const standardDeviations = Object.entries(settings.scoring).reduce((obj: Record<string, any>, [setting, value]) => {
             obj[setting] = value ? getAverageAndStdDev(rawData, statsToRawDataMap[setting]) : 0;
             return obj;
         }, {});
 
-        setLoadingMessage('Calculating fantasy points');
-
-        const updatedData = rawData.map((rpd) => {
+        const dataWithFantasyPoints: PlayerData[] = rawData.map((rpd) => {
             const kvps = Object.entries(rpd);
 
             const zScores = kvps.reduce((stats, [key, value]) => {
@@ -207,35 +211,17 @@ const usePlayerData = (): PlayerDataState => {
             }, {} as PlayerStats);
 
             return {
-                rank: 0, // TODO
+                rank: 0,
                 name: rpd.Name,
                 team: rpd.Team,
                 position: rpd.Pos,
                 fantasyPoints: Object.values(zScores).reduce((sum, value) => {
                     return value ? sum + value : sum;
                 }, 0),
-                valueOverReplacement: 0, // TODO
+                valueOverReplacement: 0,
                 averageDraftPosition: rpd.ADP,
-                difference: 0, // TODO
+                difference: null,
                 gamesPlayed: rpd.GP,
-                averages: kvps.reduce((stats, [key, value]) => {
-                    const category = rawDataToStatsMap[key];
-                    if (!category) {
-                        return stats;
-                    }
-
-                    if (value !== null
-                        && rpd.GP !== null
-                        && rpd.GP > 0
-                        && !averagesCategories.includes(category)
-                    ) {
-                        stats[category] = value / rpd.GP;
-                    } else {
-                        stats[category] = value;
-                    }
-
-                    return stats;
-                }, {} as PlayerStats),
                 totals: {
                     goals: rpd.G,
                     assists: rpd.A,
@@ -263,14 +249,78 @@ const usePlayerData = (): PlayerDataState => {
             };
         });
 
-        setData(updatedData);
-        setLoadingMessage(undefined);
+        const centers = dataWithFantasyPoints
+            .filter((pd) => pd.position?.toLowerCase().includes('c'))
+            .sort(sortPlayerData);
+
+        const leftWings = dataWithFantasyPoints
+            .filter((pd) => pd.position?.toLowerCase().includes('lw'))
+            .sort(sortPlayerData);
+
+        const rightWings = dataWithFantasyPoints
+            .filter((pd) => pd.position?.toLowerCase().includes('rw'))
+            .sort(sortPlayerData);
+
+        const defense = dataWithFantasyPoints
+            .filter((pd) => pd.position?.toLowerCase() === 'd')
+            .sort(sortPlayerData);
+
+        const goalies = dataWithFantasyPoints
+            .filter((pd) => pd.position?.toLowerCase() === 'g')
+            .sort(sortPlayerData);
+
+        const replacementPlayerRanks = {
+            center: Math.round(((settings.teams * settings.roster.center) + (topOneHundredSelections.center * (settings.roster.center / 2) * (settings.teams / 12))) / 2),
+            leftWing: Math.round(((settings.teams * settings.roster.leftWing) + (topOneHundredSelections.leftWing * (settings.roster.leftWing / 2) * (settings.teams / 12))) / 2),
+            rightWing: Math.round(((settings.teams * settings.roster.rightWing) + (topOneHundredSelections.rightWing * (settings.roster.rightWing / 2) * (settings.teams / 12))) / 2),
+            defense: Math.round(((settings.teams * settings.roster.defense) + (topOneHundredSelections.defense * (settings.roster.defense / 4) * (settings.teams / 12))) / 2),
+            goalie: Math.round(((settings.teams * settings.roster.goalie) + (topOneHundredSelections.goalie * (settings.roster.goalie / 2) * (settings.teams / 12))) / 2),
+        };
+
+        const replacementPlayerValues = {
+            center: centers[replacementPlayerRanks.center]?.fantasyPoints || 0,
+            leftWing: leftWings[replacementPlayerRanks.leftWing]?.fantasyPoints || 0,
+            rightWing: rightWings[replacementPlayerRanks.rightWing]?.fantasyPoints || 0,
+            defense: defense[replacementPlayerRanks.defense]?.fantasyPoints || 0,
+            goalie: goalies[replacementPlayerRanks.goalie]?.fantasyPoints || 0,
+        };
+
+        for (const playerData of dataWithFantasyPoints) {
+            const position = playerData.position?.toLowerCase();
+            if (position === 'g') {
+                playerData.valueOverReplacement = playerData.fantasyPoints - replacementPlayerValues.goalie;
+            } else if (position === 'd') {
+                playerData.valueOverReplacement = playerData.fantasyPoints - replacementPlayerValues.defense;
+            } else if (position?.includes('rw')) {
+                playerData.valueOverReplacement = playerData.fantasyPoints - replacementPlayerValues.rightWing;
+            } else if (position?.includes('lw')) {
+                playerData.valueOverReplacement = playerData.fantasyPoints - replacementPlayerValues.leftWing;
+            } else {
+                // assume 'c' if no other position set
+                playerData.valueOverReplacement = playerData.fantasyPoints - replacementPlayerValues.center;
+            }
+        }
+
+        const rankedData = dataWithFantasyPoints
+            .sort((a, b) => b.valueOverReplacement - a.valueOverReplacement)
+            .map((pd, index) => {
+                const rank = index + 1;
+
+                return {
+                    ...pd,
+                    difference: rank - (pd.averageDraftPosition || 0),
+                    rank,
+                };
+            });
+
+        setData(rankedData);
+        setLoading(false);
     }, [rawData, settings]);
 
     return {
         data,
         errors,
-        loadingMessage,
+        loading,
         setDataSource,
     };
 };

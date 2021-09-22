@@ -12,12 +12,6 @@ interface ButtonProps {
     submit?: boolean;
 }
 
-const getButtonStyles = (disabled: boolean, primary: boolean) => clsx(
-    'relative inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-transparent text-sm font-medium focus:outline-none focus:ring transition',
-    primary ? 'bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 focus:ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-100 active:bg-gray-300 focus:ring-gray-400',
-    disabled && 'opacity-50 cursor-not-allowed',
-);
-
 const Button = (props: ButtonProps): JSX.Element => {
     const {
         children,
@@ -29,7 +23,11 @@ const Button = (props: ButtonProps): JSX.Element => {
         submit = false,
     } = props;
 
-    const styles = getButtonStyles(disabled, primary);
+    const styles = clsx(
+        'relative inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-transparent text-sm font-medium focus:outline-none focus:ring transition',
+        primary ? 'bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 focus:ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-100 active:bg-gray-300 focus:ring-gray-400',
+        disabled && 'opacity-50 cursor-not-allowed',
+    );
 
     return (
         <button

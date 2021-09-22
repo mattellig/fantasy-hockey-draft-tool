@@ -308,7 +308,7 @@ const usePlayerData = (): PlayerDataState => {
 
                 return {
                     ...pd,
-                    difference: rank - (pd.averageDraftPosition || 0),
+                    difference: (pd.averageDraftPosition || 0) - rank,
                     rank,
                 };
             });

@@ -18,7 +18,9 @@ interface RowProps {
 interface CellProps {
     align?: 'left' | 'center' | 'right';
     children?: React.ReactNode;
+    collapsing?: boolean;
     colSpan?: number;
+    flush?: boolean;
 }
 
 const DataTable = ({ children, headings = [] }: DataTableProps): JSX.Element => (
@@ -57,15 +59,31 @@ const Row = ({ children }: RowProps): JSX.Element => (
     </tr>
 );
 
-const Cell = ({ align, children, colSpan }: CellProps): JSX.Element => (
-    <td
-        align={align}
-        colSpan={colSpan}
-        className="p-2 text-sm whitespace-nowrap"
-    >
-        {children}
-    </td>
-);
+const Cell = (props: CellProps): JSX.Element => {
+    const {
+        align,
+        children,
+        collapsing = false,
+        colSpan,
+        flush = false,
+    } = props;
+
+    const styles = clsx(
+        collapsing && 'w-px',
+        !flush && 'p-2',
+        'text-sm whitespace-nowrap',
+    );
+
+    return (
+        <td
+            align={align}
+            colSpan={colSpan}
+            className={styles}
+        >
+            {children}
+        </td>
+    );
+};
 
 DataTable.Cell = Cell;
 DataTable.Row = Row;

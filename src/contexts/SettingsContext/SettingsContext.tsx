@@ -33,6 +33,12 @@ export interface ScoringSettings {
     shutouts: boolean;
 }
 
+export interface Team {
+    draftPosition: number;
+    id: number;
+    name: string;
+}
+
 export interface SettingsState {
     data: {
         isTotal: boolean;
@@ -40,7 +46,7 @@ export interface SettingsState {
     };
     roster: RosterSettings;
     scoring: ScoringSettings;
-    teams: number;
+    teams: Team[];
 }
 
 type SettingsAndDispatch = [SettingsState, React.Dispatch<React.SetStateAction<SettingsState>>];
@@ -85,7 +91,18 @@ const defaultSettings: SettingsState = {
         savePercentage: true,
         shutouts: true,
     },
-    teams: 10,
+    teams: [
+        { id: 0, name: 'Your Team', draftPosition: 1 },
+        { id: 1, name: 'Team 2', draftPosition: 2 },
+        { id: 2, name: 'Team 3', draftPosition: 3 },
+        { id: 3, name: 'Team 4', draftPosition: 4 },
+        { id: 4, name: 'Team 5', draftPosition: 5 },
+        { id: 5, name: 'Team 6', draftPosition: 6 },
+        { id: 6, name: 'Team 7', draftPosition: 7 },
+        { id: 7, name: 'Team 8', draftPosition: 8 },
+        { id: 8, name: 'Team 9', draftPosition: 9 },
+        { id: 9, name: 'Team 10', draftPosition: 10 },
+    ],
 };
 
 const SettingsContext = React.createContext<SettingsAndDispatch | undefined>(undefined);

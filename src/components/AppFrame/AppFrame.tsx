@@ -7,7 +7,7 @@ interface AppFrameProps {
 }
 
 const AppFrame = ({ children, topBar }: AppFrameProps): JSX.Element => (
-    <div className="flex flex-col w-full min-h-screen bg-white">
+    <div className="flex flex-col w-full min-h-screen bg-white text-gray-700 selection:bg-yellow-200">
         <div className="fixed z-50 top-4 left-3 opacity-0 pointer-events-none">
             <a href="#main-app-content">
                 Skip to content

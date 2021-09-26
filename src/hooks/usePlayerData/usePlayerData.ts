@@ -168,14 +168,12 @@ const usePlayerData = (): PlayerDataState => {
 
     const [settings] = useSettings();
 
-    const { isTotal, source } = settings.data;
-
     React.useEffect(() => {
         setLoading(true);
-        parseDataFile<RawPlayerData>(source, (parseData, parseErrors) => {
+        parseDataFile<RawPlayerData>(settings.data.source, (parseData, parseErrors) => {
             setErrors(parseErrors);
 
-            if (!isTotal) {
+            if (!settings.data.isTotal) {
                 setRawData(parseData.map((rpd) => rpd.GP === null ? rpd : {
                     ...rpd,
                     G: getStatAsTotal(rpd.G, rpd.GP),
@@ -202,12 +200,14 @@ const usePlayerData = (): PlayerDataState => {
                 setRawData(parseData);
             }
         });
-    }, [isTotal, source]);
+    }, [settings.data.isTotal, settings.data.source]);
 
     React.useEffect(() => {
         if (!rawData) return;
 
-        const standardDeviations = Object.entries(settings.scoring).reduce((obj: Record<string, any>, [setting, value]) => {
+        const { roster, scoring, teams } = settings;
+
+        const standardDeviations = Object.entries(scoring).reduce((obj: Record<string, any>, [setting, value]) => {
             obj[setting] = value ? getAverageAndStdDev(rawData, statsToRawDataMap[setting]) : 0;
             return obj;
         }, {});
@@ -294,11 +294,11 @@ const usePlayerData = (): PlayerDataState => {
             .sort(sortPlayerData);
 
         const replacementPlayerRanks = {
-            center: Math.round(((settings.teams * settings.roster.center) + (topOneHundredSelections.center * (settings.roster.center / 2) * (settings.teams / 12))) / 2),
-            leftWing: Math.round(((settings.teams * settings.roster.leftWing) + (topOneHundredSelections.leftWing * (settings.roster.leftWing / 2) * (settings.teams / 12))) / 2),
-            rightWing: Math.round(((settings.teams * settings.roster.rightWing) + (topOneHundredSelections.rightWing * (settings.roster.rightWing / 2) * (settings.teams / 12))) / 2),
-            defense: Math.round(((settings.teams * settings.roster.defense) + (topOneHundredSelections.defense * (settings.roster.defense / 4) * (settings.teams / 12))) / 2),
-            goalie: Math.round(((settings.teams * settings.roster.goalie) + (topOneHundredSelections.goalie * (settings.roster.goalie / 2) * (settings.teams / 12))) / 2),
+            center: Math.round(((teams.length * roster.center) + (topOneHundredSelections.center * (roster.center / 2) * (teams.length / 12))) / 2),
+            leftWing: Math.round(((teams.length * roster.leftWing) + (topOneHundredSelections.leftWing * (roster.leftWing / 2) * (teams.length / 12))) / 2),
+            rightWing: Math.round(((teams.length * roster.rightWing) + (topOneHundredSelections.rightWing * (roster.rightWing / 2) * (teams.length / 12))) / 2),
+            defense: Math.round(((teams.length * roster.defense) + (topOneHundredSelections.defense * (roster.defense / 4) * (teams.length / 12))) / 2),
+            goalie: Math.round(((teams.length * roster.goalie) + (topOneHundredSelections.goalie * (roster.goalie / 2) * (teams.length / 12))) / 2),
         };
 
         const replacementPlayerValues = {

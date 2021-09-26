@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ScoringSettings, useSettings } from '../../contexts/SettingsContext/SettingsContext';
-import { PlayerData, PlayerStats } from '../../hooks/usePlayerData/usePlayerData';
-import DataTable, { DataTableHeading } from '../DataTable/DataTable';
-import Spinner from '../Spinner/Spinner';
+import DataTable, { DataTableHeading } from '../../../../components/DataTable/DataTable';
+import Spinner from '../../../../components/Spinner/Spinner';
+import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
+import { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
 
 interface PlayersTableProps {
     data: PlayerData[] | undefined;

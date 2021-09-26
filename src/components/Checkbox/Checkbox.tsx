@@ -5,7 +5,7 @@ interface CheckboxProps {
     checked?: boolean;
     id: string;
     label: string;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
+    onChange?: (checked: boolean, id: string) => void;
 }
 
 const Checkbox = (props: CheckboxProps): JSX.Element => {
@@ -19,10 +19,12 @@ const Checkbox = (props: CheckboxProps): JSX.Element => {
     const [checked, setChecked] = useControlledState(checkedProp);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setChecked(event.target.checked);
+        const { checked } = event.target;
+
+        setChecked(checked);
 
         if (onChange) {
-            onChange(event);
+            onChange(checked, id);
         }
     };
 
@@ -35,7 +37,7 @@ const Checkbox = (props: CheckboxProps): JSX.Element => {
                 type="checkbox"
                 className="h-[18px] w-[18px] mr-2 rounded-sm border-2 border-gray-500 cursor-pointer hover:border-gray-400 focus:ring-offset-1 transition"
             />
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-gray-800">
                 {label}
             </span>
         </label>

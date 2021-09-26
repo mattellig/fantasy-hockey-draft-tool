@@ -2,9 +2,10 @@ import * as React from 'react';
 import useControlledState from '../../hooks/useControlledState/useControlledState';
 
 interface SelectProps {
+    disabled?: boolean;
     id: string;
     label: string;
-    onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+    onChange?: (value: string, id: string) => void;
     options: string[];
     required?: boolean;
     value?: string;
@@ -12,6 +13,7 @@ interface SelectProps {
 
 const Select = (props: SelectProps): JSX.Element => {
     const {
+        disabled = false,
         id,
         label,
         onChange,
@@ -23,10 +25,12 @@ const Select = (props: SelectProps): JSX.Element => {
     const [value, setValue] = useControlledState(valueProp);
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setValue(event.target.value);
+        const { value } = event.target;
+
+        setValue(value);
 
         if (onChange) {
-            onChange(event);
+            onChange(value, id);
         }
     };
 
@@ -44,7 +48,8 @@ const Select = (props: SelectProps): JSX.Element => {
                 ) : null}
             </label>
             <select
-                className="w-full rounded-md border-gray-300 text-sm focus:ring focus:ring-blue-200 transition"
+                className="w-full rounded-md border-gray-300 text-sm focus:ring focus:ring-blue-200 disabled:opacity-50 transition"
+                disabled={disabled}
                 id={id}
                 onChange={handleChange}
                 required={required}

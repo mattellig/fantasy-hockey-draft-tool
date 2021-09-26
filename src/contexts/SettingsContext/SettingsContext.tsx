@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 export interface RosterSettings {
+    bench: number;
     center: number;
     defense: number;
     goalie: number;
@@ -32,20 +33,29 @@ export interface ScoringSettings {
     shutouts: boolean;
 }
 
-export interface Settings {
+export interface SettingsState {
+    data: {
+        isTotal: boolean;
+        source: File | string;
+    };
     roster: RosterSettings;
     scoring: ScoringSettings;
     teams: number;
 }
 
-type SettingsAndSetter = [Settings, (newSettings: Settings) => void];
+type SettingsAndDispatch = [SettingsState, React.Dispatch<React.SetStateAction<SettingsState>>];
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
 }
 
-const defaultSettings: Settings = {
+const defaultSettings: SettingsState = {
+    data: {
+        isTotal: true,
+        source: '/sample.csv',
+    },
     roster: {
+        bench: 4,
         center: 2,
         defense: 4,
         goalie: 2,
@@ -78,42 +88,19 @@ const defaultSettings: Settings = {
     teams: 10,
 };
 
-const SettingsContext = React.createContext<SettingsAndSetter | undefined>(undefined);
-
-const storageKey = 'fhdt-settings';
-
-const getDefaultSettings = () => {
-    const localData = localStorage.getItem(storageKey);
-    if (localData) {
-        try {
-            const parsedSettings = JSON.parse(localData);
-
-            return { ...defaultSettings, ...parsedSettings };
-        } catch (error) {
-            console.error('Error parsing local settings:', error);
-        }
-    }
-
-    return defaultSettings;
-};
+const SettingsContext = React.createContext<SettingsAndDispatch | undefined>(undefined);
 
 const SettingsProvider = ({ children }: SettingsProviderProps): JSX.Element => {
-    const [settings, setSettings] = React.useState(getDefaultSettings());
-
-    const updateSettings = (newSettings: Settings) => {
-        localStorage.setItem(storageKey, JSON.stringify(newSettings));
-
-        setSettings(newSettings);
-    };
+    const [settings, setSettings] = React.useState(defaultSettings);
 
     return (
-        <SettingsContext.Provider value={[settings, updateSettings]}>
+        <SettingsContext.Provider value={[settings, setSettings]}>
             {children}
         </SettingsContext.Provider>
     );
 };
 
-const useSettings = (): SettingsAndSetter => {
+const useSettings = (): SettingsAndDispatch => {
     const context = React.useContext(SettingsContext);
 
     if (context === undefined) {

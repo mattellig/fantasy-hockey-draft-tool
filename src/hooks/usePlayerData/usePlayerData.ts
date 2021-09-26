@@ -1,6 +1,7 @@
 import Papa, { ParseError } from 'papaparse';
 import * as React from 'react';
 import { useSettings } from '../../contexts/SettingsContext/SettingsContext';
+import parseDataFile from '../../utils/parseDataFile/parseDataFile';
 
 export interface PlayerStats {
     goals: number | null;
@@ -40,14 +41,7 @@ export interface PlayerData {
     zScores: PlayerStats;
 }
 
-interface PlayerDataState {
-    data: PlayerData[] | undefined;
-    errors: Papa.ParseError[];
-    loading: boolean;
-    setDataSource: React.Dispatch<React.SetStateAction<File | string>>;
-}
-
-interface RawPlayerData {
+export interface RawPlayerData {
     Name: string | null;
     Team: string | null;
     Pos: string | null;
@@ -74,6 +68,12 @@ interface RawPlayerData {
     SV: number | null;
     'SV%': number | null;
     SO: number | null;
+}
+
+interface PlayerDataState {
+    data: PlayerData[] | undefined;
+    errors: Papa.ParseError[];
+    loading: boolean;
 }
 
 const negativeCategories = ['faceoffsLost', 'goalsAgainstAverage', 'goalsAgainst', 'losses'];
@@ -158,7 +158,6 @@ const sortPlayerData = (a: PlayerData, b: PlayerData) => b.fantasyPoints - a.fan
 
 const usePlayerData = (): PlayerDataState => {
     const [data, setData] = React.useState<PlayerData[]>();
-    const [dataSource, setDataSource] = React.useState<File | string>(`${window.location.href}/sample.csv`);
     const [errors, setErrors] = React.useState<ParseError[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [rawData, setRawData] = React.useState<RawPlayerData[]>();
@@ -167,18 +166,11 @@ const usePlayerData = (): PlayerDataState => {
 
     React.useEffect(() => {
         setLoading(true);
-
-        Papa.parse<RawPlayerData>(dataSource, {
-            complete: (results) => {
-                setErrors(results.errors);
-                setRawData(results.errors.length ? [] : results.data);
-            },
-            download: typeof dataSource === 'string',
-            dynamicTyping: true,
-            header: true,
-            worker: true,
+        parseDataFile<RawPlayerData>(settings.data.source, (data, errors) => {
+            setErrors(errors);
+            setRawData(data);
         });
-    }, [dataSource]);
+    }, [settings.data.source]);
 
     React.useEffect(() => {
         if (!rawData) return;
@@ -317,12 +309,7 @@ const usePlayerData = (): PlayerDataState => {
         setLoading(false);
     }, [rawData, settings]);
 
-    return {
-        data,
-        errors,
-        loading,
-        setDataSource,
-    };
+    return { data, errors, loading };
 };
 
 export default usePlayerData;

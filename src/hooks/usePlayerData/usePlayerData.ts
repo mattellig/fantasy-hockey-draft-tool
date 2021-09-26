@@ -154,6 +154,10 @@ const getAverageAndStdDev = (data: RawPlayerData[], category: keyof RawPlayerDat
     return { avg, stdev };
 };
 
+const getStatAsTotal = (statValue: number | null, gamesPlayed: number) => statValue !== null
+    ? (statValue * gamesPlayed)
+    : null;
+
 const sortPlayerData = (a: PlayerData, b: PlayerData) => b.fantasyPoints - a.fantasyPoints;
 
 const usePlayerData = (): PlayerDataState => {
@@ -164,13 +168,41 @@ const usePlayerData = (): PlayerDataState => {
 
     const [settings] = useSettings();
 
+    const { isTotal, source } = settings.data;
+
     React.useEffect(() => {
         setLoading(true);
-        parseDataFile<RawPlayerData>(settings.data.source, (data, errors) => {
-            setErrors(errors);
-            setRawData(data);
+        parseDataFile<RawPlayerData>(source, (parseData, parseErrors) => {
+            setErrors(parseErrors);
+
+            if (!isTotal) {
+                setRawData(parseData.map((rpd) => rpd.GP === null ? rpd : {
+                    ...rpd,
+                    G: getStatAsTotal(rpd.G, rpd.GP),
+                    A: getStatAsTotal(rpd.A, rpd.GP),
+                    PTS: getStatAsTotal(rpd.PTS, rpd.GP),
+                    '+/-': getStatAsTotal(rpd['+/-'], rpd.GP),
+                    PIM: getStatAsTotal(rpd.PIM, rpd.GP),
+                    PPG: getStatAsTotal(rpd.PPG, rpd.GP),
+                    PPA: getStatAsTotal(rpd.PPA, rpd.GP),
+                    PPP: getStatAsTotal(rpd.PPP, rpd.GP),
+                    GWG: getStatAsTotal(rpd.GWG, rpd.GP),
+                    SOG: getStatAsTotal(rpd.SOG, rpd.GP),
+                    FOW: getStatAsTotal(rpd.FOW, rpd.GP),
+                    FOL: getStatAsTotal(rpd.FOL, rpd.GP),
+                    HIT: getStatAsTotal(rpd.HIT, rpd.GP),
+                    BLK: getStatAsTotal(rpd.BLK, rpd.GP),
+                    W: getStatAsTotal(rpd.W, rpd.GP),
+                    L: getStatAsTotal(rpd.L, rpd.GP),
+                    GA: getStatAsTotal(rpd.GA, rpd.GP),
+                    SV: getStatAsTotal(rpd.SV, rpd.GP),
+                    SO: getStatAsTotal(rpd.SO, rpd.GP),
+                }));
+            } else {
+                setRawData(parseData);
+            }
         });
-    }, [settings.data.source]);
+    }, [isTotal, source]);
 
     React.useEffect(() => {
         if (!rawData) return;

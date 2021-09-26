@@ -9,7 +9,7 @@ import Draft from './pages/Draft/Draft';
 
 const App = (): JSX.Element => (
     <SettingsProvider>
-        <Router>
+        <Router basename={import.meta.env.BASE_URL}>
             <AppFrame
                 topBar={
                     <TopBar>

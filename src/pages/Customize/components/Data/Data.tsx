@@ -12,7 +12,7 @@ import parseDataFile from '../../../../utils/parseDataFile/parseDataFile';
 
 const customData = 'custom';
 const formatOptions = ['Totals', 'Per-game'];
-const sampleDataPath = '/sample.csv';
+const sampleDataPath = 'sample.csv';
 
 const Data = (): JSX.Element => {
     const [settings, setSettings] = useSettings();
@@ -103,7 +103,7 @@ const Data = (): JSX.Element => {
             <div className="mb-6">
                 <div className="flex items-center space-x-2">
                     <DownloadIcon className="h-5 w-5 text-blue-600" />
-                    <Link href={sampleDataPath}>
+                    <Link href={`${import.meta.env.BASE_URL}${sampleDataPath}`}>
                         Download sample.csv
                     </Link>
                 </div>

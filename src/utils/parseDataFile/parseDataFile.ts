@@ -5,7 +5,9 @@ const parseDataFile = <T>(
     cb: (data: T[], errors: ParseError[]) => void,
 ) => {
     const sourceIsPath = typeof source === 'string';
-    const toParse = sourceIsPath ? `${window.location.origin}${source}` : source;
+    const toParse = sourceIsPath
+        ? `${window.location.origin}${import.meta.env.BASE_URL}${source}`
+        : source;
 
     Papa.parse<T>(toParse, {
         complete: (results) => {

@@ -52,7 +52,7 @@ interface SettingsProviderProps {
 const defaultSettings: SettingsState = {
     data: {
         isTotal: true,
-        source: '/sample.csv',
+        source: 'sample.csv',
     },
     roster: {
         bench: 4,

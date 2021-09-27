@@ -62,6 +62,8 @@ interface SettingsProviderProps {
     children?: React.ReactNode;
 }
 
+export const myTeamId = 0;
+
 const defaultSettings: SettingsState = {
     data: {
         isTotal: true,
@@ -100,7 +102,7 @@ const defaultSettings: SettingsState = {
         shutouts: true,
     },
     teams: [
-        { id: 0, name: 'Your Team', draftPosition: 1 },
+        { id: myTeamId, name: 'Your Team', draftPosition: 1 },
         { id: 1, name: 'Team 2', draftPosition: 2 },
         { id: 2, name: 'Team 3', draftPosition: 3 },
         { id: 3, name: 'Team 4', draftPosition: 4 },

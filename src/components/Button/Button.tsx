@@ -26,7 +26,7 @@ const Button = (props: ButtonProps): JSX.Element => {
     } = props;
 
     const styles = link ? clsx(
-        'relative inline-flex items-center justify-center rounded text-sm text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
+        'relative inline-flex items-center justify-center rounded text-sm font-medium text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
         loading && 'opacity-75 pointer-events-none',
     ) : clsx(
         'relative inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-transparent text-sm font-medium focus:outline-none focus:ring transition disabled:opacity-50 disabled:cursor-not-allowed',
@@ -42,11 +42,11 @@ const Button = (props: ButtonProps): JSX.Element => {
             className={styles}
         >
             {loading ? (
-                <div className="-ml-px mr-2">
+                <div className="-ml-px mr-1.5">
                     <Spinner />
                 </div>
             ) : icon ? (
-                <div className="h-4 w-4 -ml-px mr-2">
+                <div className="h-4 w-4 -ml-px mr-1.5">
                     {icon}
                 </div>
             ) : null}

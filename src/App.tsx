@@ -1,6 +1,5 @@
-import { AdjustmentsIcon } from '@heroicons/react/outline';
 import * as React from 'react';
-import { BrowserRouter as Router, Link, NavLink, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
 import AppFrame from './components/AppFrame/AppFrame';
 import TopBar from './components/TopBar/TopBar';
 import { SettingsProvider } from './contexts/SettingsContext/SettingsContext';
@@ -19,16 +18,6 @@ const App = (): JSX.Element => (
                             </Link>
                         </TopBar.Section>
                         <TopBar.Section end>
-                            <div className="mr-2">
-                                <NavLink
-                                    to="/customize"
-                                    activeClassName="bg-blue-700"
-                                    className="flex items-center rounded-md px-3 py-1.5 font-medium hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
-                                >
-                                    <AdjustmentsIcon className="h-5 w-5 mr-2 -ml-0.5" />
-                                    Customize
-                                </NavLink>
-                            </div>
                             <a
                                 href="https://github.com/mattellig/fantasy-hockey-draft-tool"
                                 className="rounded-md p-1.5 hover:bg-blue-700"

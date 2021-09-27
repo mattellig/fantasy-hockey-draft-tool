@@ -20,6 +20,7 @@ const defenseRosterSizeOptions = [
 ];
 
 const benchRosterSizeOptions = [
+    '0',
     ...defenseRosterSizeOptions,
     '11',
     '12',

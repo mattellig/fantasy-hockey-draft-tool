@@ -1,6 +1,6 @@
 import Papa, { ParseError } from 'papaparse';
 import * as React from 'react';
-import { useSettings } from '../../contexts/SettingsContext/SettingsContext';
+import { ReplacementLevelMethod, RosterSettings, SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
 import parseDataFile from '../../utils/parseDataFile/parseDataFile';
 
 export interface PlayerStats {
@@ -126,7 +126,8 @@ const statsToRawDataMap: Record<string, keyof RawPlayerData> = {
     shutouts: 'SO',
 };
 
-const topOneHundredSelections = {
+const topOneHundredSelections: Record<keyof RosterSettings, number> = {
+    bench: 0,
     center: 24,
     leftWing: 19,
     rightWing: 19,
@@ -152,6 +153,22 @@ const getAverageAndStdDev = (data: RawPlayerData[], category: keyof RawPlayerDat
     );
 
     return { avg, stdev };
+};
+
+const getReplacementLevelIndex = (mode: ReplacementLevelMethod, teams: Team[], roster: RosterSettings, position: keyof RosterSettings) => {
+    const playerCount = teams.length * roster[position];
+    if (mode === ReplacementLevelMethod.Position) {
+        return playerCount;
+    }
+
+    const positionCount = position === 'defense' ? 4 : 2;
+
+    const topOneHundredCount = Math.round(topOneHundredSelections[position] * (roster[position] / positionCount) * (teams.length / 12));
+    if (mode === ReplacementLevelMethod.Draft) {
+        return topOneHundredCount;
+    }
+
+    return Math.round((playerCount + topOneHundredCount) / 2);
 };
 
 const getStatAsTotal = (statValue: number | null, gamesPlayed: number) => statValue !== null
@@ -205,7 +222,12 @@ const usePlayerData = (): PlayerDataState => {
     React.useEffect(() => {
         if (!rawData) return;
 
-        const { roster, scoring, teams } = settings;
+        const {
+            replacementLevel,
+            roster,
+            scoring,
+            teams,
+        } = settings;
 
         const standardDeviations = Object.entries(scoring).reduce((obj: Record<string, any>, [setting, value]) => {
             obj[setting] = value ? getAverageAndStdDev(rawData, statsToRawDataMap[setting]) : 0;
@@ -294,11 +316,11 @@ const usePlayerData = (): PlayerDataState => {
             .sort(sortPlayerData);
 
         const replacementPlayerRanks = {
-            center: Math.round(((teams.length * roster.center) + (topOneHundredSelections.center * (roster.center / 2) * (teams.length / 12))) / 2),
-            leftWing: Math.round(((teams.length * roster.leftWing) + (topOneHundredSelections.leftWing * (roster.leftWing / 2) * (teams.length / 12))) / 2),
-            rightWing: Math.round(((teams.length * roster.rightWing) + (topOneHundredSelections.rightWing * (roster.rightWing / 2) * (teams.length / 12))) / 2),
-            defense: Math.round(((teams.length * roster.defense) + (topOneHundredSelections.defense * (roster.defense / 4) * (teams.length / 12))) / 2),
-            goalie: Math.round(((teams.length * roster.goalie) + (topOneHundredSelections.goalie * (roster.goalie / 2) * (teams.length / 12))) / 2),
+            center: getReplacementLevelIndex(replacementLevel, teams, roster, 'center'),
+            leftWing: getReplacementLevelIndex(replacementLevel, teams, roster, 'leftWing'),
+            rightWing: getReplacementLevelIndex(replacementLevel, teams, roster, 'rightWing'),
+            defense: getReplacementLevelIndex(replacementLevel, teams, roster, 'defense'),
+            goalie: getReplacementLevelIndex(replacementLevel, teams, roster, 'goalie'),
         };
 
         const replacementPlayerValues = {

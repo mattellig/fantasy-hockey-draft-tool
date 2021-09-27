@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+export enum ReplacementLevelMethod {
+    Blend = 'blend',
+    Draft = 'draft',
+    Position = 'position',
+}
+
 export interface RosterSettings {
     bench: number;
     center: number;
@@ -44,6 +50,7 @@ export interface SettingsState {
         isTotal: boolean;
         source: File | string;
     };
+    replacementLevel: ReplacementLevelMethod;
     roster: RosterSettings;
     scoring: ScoringSettings;
     teams: Team[];
@@ -60,6 +67,7 @@ const defaultSettings: SettingsState = {
         isTotal: true,
         source: 'sample.csv',
     },
+    replacementLevel: ReplacementLevelMethod.Blend,
     roster: {
         bench: 4,
         center: 2,

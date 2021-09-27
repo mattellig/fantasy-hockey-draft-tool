@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
 import { getLinkStyles } from '../../../../components/Link/Link';
+import RadioButton from '../../../../components/RadioButton/RadioButton';
 import Select from '../../../../components/Select/Select';
 import { toast } from '../../../../components/Toast/Toast';
-import { RosterSettings, ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
+import { ReplacementLevelMethod, RosterSettings, ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 
 const rosterSizeOptions = ['1', '2', '3', '4', '5'];
 
@@ -36,6 +37,10 @@ const Settings = (): JSX.Element => {
     const [settings, setSettings] = useSettings();
 
     const [localSettings, setLocalSettings] = React.useState(settings);
+
+    const handleChangeReplacementLevelMethod = (newMethod: ReplacementLevelMethod) => {
+        setLocalSettings({ ...localSettings, replacementLevel: newMethod });
+    };
 
     const handleChangeRosterSetting = (value: string, setting: keyof RosterSettings) => {
         setLocalSettings({
@@ -75,6 +80,43 @@ const Settings = (): JSX.Element => {
                     Adjust roster and scoring settings to match your league.
                 </p>
             </div>
+            <fieldset className="mb-6">
+                <legend className="block mb-1 text-sm font-medium text-gray-700">
+                    Replacement level
+                </legend>
+                <ul className="space-y-2">
+                    <li>
+                        <RadioButton
+                            checked={localSettings.replacementLevel === ReplacementLevelMethod.Position}
+                            helpText="Replacement level will be determined based on the number of players drafted in each position."
+                            id="position-radio"
+                            label="By position count"
+                            name="replacement-level"
+                            onChange={() => handleChangeReplacementLevelMethod(ReplacementLevelMethod.Position)}
+                        />
+                    </li>
+                    <li>
+                        <RadioButton
+                            checked={localSettings.replacementLevel === ReplacementLevelMethod.Draft}
+                            helpText="Replacement level will be based on the average number of players drafted in each position in the first 100 picks."
+                            id="draft-radio"
+                            label="By average draft count"
+                            name="replacement-level"
+                            onChange={() => handleChangeReplacementLevelMethod(ReplacementLevelMethod.Draft)}
+                        />
+                    </li>
+                    <li>
+                        <RadioButton
+                            checked={localSettings.replacementLevel === ReplacementLevelMethod.Blend}
+                            helpText="Replacement level will be determined as the average of both the position count and average draft options."
+                            id="blend-radio"
+                            label="Blend"
+                            name="replacement-level"
+                            onChange={() => handleChangeReplacementLevelMethod(ReplacementLevelMethod.Blend)}
+                        />
+                    </li>
+                </ul>
+            </fieldset>
             <fieldset className="mb-6">
                 <legend className="mb-2 text-lg font-medium text-gray-800">
                     Roster

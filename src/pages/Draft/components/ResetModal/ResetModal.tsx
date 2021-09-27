@@ -19,7 +19,7 @@ const ResetModal = ({ onClose, open }: ResetModalProps): JSX.Element => (
             </p>
         </Modal.Section>
         <Modal.Footer>
-            <Button onClick={() => onClose(true)} primary>
+            <Button destructive onClick={() => onClose(true)}>
                 Reset
             </Button>
             <Button onClick={() => onClose(false)}>

@@ -67,16 +67,19 @@ const DraftList = (props: DraftListProps): JSX.Element | null => {
                     </div>
                 )}
             </div>
-            <h3 className="block mb-0.5 text-sm font-medium text-gray-500">
-                Coming up
-            </h3>
+            <div className="relative flex items-center justify-center py-1">
+                <div className="absolute inset-x-0 inset-y-1/2 border-t" />
+                <div className="relative z-10 px-2 bg-white text-gray-500 text-sm font-medium">
+                    Round {currentRound}
+                </div>
+            </div>
             <ol>
                 {picks.slice(currentPickNumber).map((dp) => (
                     <>
                         {(dp.pickNumber - 1) % numberOfTeams === 0 ? (
                             <li className="relative flex items-center justify-center py-1">
                                 <div className="absolute inset-x-0 inset-y-1/2 border-t" />
-                                <div className="relative z-10 px-2 bg-white text-gray-500">
+                                <div className="relative z-10 px-2 bg-white text-gray-500 text-sm font-medium">
                                     Round {((dp.pickNumber - 1) / numberOfTeams) + 1}
                                 </div>
                             </li>

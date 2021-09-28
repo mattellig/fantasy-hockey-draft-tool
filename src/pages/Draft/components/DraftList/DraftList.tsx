@@ -1,30 +1,21 @@
 import clsx from 'clsx';
 import * as React from 'react';
-import { myTeamId } from '../../../../contexts/SettingsContext/SettingsContext';
+import { myTeamId, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import getNumberWithOrdinal from '../../../../utils/getNumberWithOrdinal/getNumberWithOrdinal';
 import { DraftPick } from '../../Draft';
 
 interface DraftListProps {
     currentPickNumber: number;
     draftPicks: DraftPick[];
-    draftStarted: boolean;
-    numberOfTeams: number;
 }
 
-const DraftList = (props: DraftListProps): JSX.Element | null => {
-    const {
-        currentPickNumber,
-        draftPicks,
-        draftStarted,
-        numberOfTeams,
-    } = props;
+const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Element | null => {
+    const [settings] = useSettings();
+
+    const numberOfTeams = settings.teams.length;
 
     const currentRound = Math.floor((currentPickNumber - 1) / numberOfTeams) + 1;
     const nextPickIn = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId);
-
-    if (!draftStarted) {
-        return null;
-    }
 
     if (currentPickNumber === draftPicks.length) {
         return (

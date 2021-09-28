@@ -67,10 +67,10 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
 };
 
 const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTableProps): JSX.Element => {
-    const [filteredData, setFilteredData] = React.useState<PlayerData[] | undefined>();
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
+    const [sort, setSort] = React.useState({ index: 6, direction: 'descending' });
 
     const [settings] = useSettings();
 
@@ -85,10 +85,66 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
             .map((dp) => dp.playerSelected) as PlayerData[];
     }, [draftPicks]);
 
-    React.useEffect(() => {
-        if (!data) return;
+    const sortedData = React.useMemo(() => {
+        if (!data) return undefined;
 
-        let dataCopy = [...data];
+        let sortFunction;
+
+        const columnToSort = tableHeadings[sort.index]?.title;
+        switch (columnToSort) {
+            case 'Rank':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? b.rank - a.rank
+                    : a.rank - b.rank
+                );
+                break;
+            case 'FP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? b.fantasyPoints - a.fantasyPoints
+                    : a.fantasyPoints - b.fantasyPoints
+                );
+                break;
+            case 'VORP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? b.valueOverReplacement - a.valueOverReplacement
+                    : a.valueOverReplacement - b.valueOverReplacement
+                );
+                break;
+            case 'ADP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? (b.averageDraftPosition || 0) - (a.averageDraftPosition || 0)
+                    : (a.averageDraftPosition || 0) - (b.averageDraftPosition || 0)
+                );
+                break;
+            case 'Diff.':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? (b.difference || 0) - (a.difference || 0)
+                    : (a.difference || 0) - (b.difference || 0)
+                );
+                break;
+            case 'GP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? (b.gamesPlayed || 0) - (a.gamesPlayed || 0)
+                    : (a.gamesPlayed || 0) - (b.gamesPlayed || 0)
+                );
+                break;
+            default: {
+                const key = headingsToSettingsMap[columnToSort];
+                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
+                    ? (b.totals[key] || 0) - (a.totals[key] || 0)
+                    : (a.totals[key] || 0) - (b.totals[key] || 0)
+                );
+                break;
+            }
+        }
+
+        return [...data].sort(sortFunction);
+    }, [data, sort]);
+
+    const filteredData = React.useMemo(() => {
+        if (!sortedData) return undefined;
+
+        let dataCopy = [...sortedData];
 
         if (!showDrafted) {
             dataCopy = dataCopy.filter((pd) => !draftedPlayers.includes(pd));
@@ -117,64 +173,8 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
             dataCopy = dataCopy.filter((pd) => pd.name?.toLowerCase().includes(playerSearch.toLowerCase()));
         }
 
-        setFilteredData(dataCopy);
-    }, [data, draftedPlayers, playerSearch, positionFilter, showDrafted]);
-
-    const handleSort = (index: number, direction: string) => {
-        if (!filteredData) return;
-
-        let sortFunction;
-
-        const columnToSort = tableHeadings[index]?.title;
-        switch (columnToSort) {
-            case 'Rank':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? b.rank - a.rank
-                    : a.rank - b.rank
-                );
-                break;
-            case 'FP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? b.fantasyPoints - a.fantasyPoints
-                    : a.fantasyPoints - b.fantasyPoints
-                );
-                break;
-            case 'VORP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? b.valueOverReplacement - a.valueOverReplacement
-                    : a.valueOverReplacement - b.valueOverReplacement
-                );
-                break;
-            case 'ADP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? (b.averageDraftPosition || 0) - (a.averageDraftPosition || 0)
-                    : (a.averageDraftPosition || 0) - (b.averageDraftPosition || 0)
-                );
-                break;
-            case 'Diff.':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? (b.difference || 0) - (a.difference || 0)
-                    : (a.difference || 0) - (b.difference || 0)
-                );
-                break;
-            case 'GP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? (b.gamesPlayed || 0) - (a.gamesPlayed || 0)
-                    : (a.gamesPlayed || 0) - (b.gamesPlayed || 0)
-                );
-                break;
-            default: {
-                const key = headingsToSettingsMap[columnToSort];
-                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
-                    ? (b.totals[key] || 0) - (a.totals[key] || 0)
-                    : (a.totals[key] || 0) - (b.totals[key] || 0)
-                );
-                break;
-            }
-        }
-
-        setFilteredData([...filteredData].sort(sortFunction));
-    };
+        return dataCopy;
+    }, [draftedPlayers, playerSearch, positionFilter, showDrafted, sortedData]);
 
     return (
         <>
@@ -213,7 +213,7 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
                 headings={tableHeadings}
                 initialSortColumnIndex={6}
                 initialSortDirection="descending"
-                onSort={handleSort}
+                onSort={(index, direction) => setSort({ index, direction })}
             >
                 {loading ? (
                     <DataTable.Row>

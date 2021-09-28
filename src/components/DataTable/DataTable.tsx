@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/solid';
+import { ArrowSmDownIcon, ArrowSmUpIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import * as React from 'react';
 
@@ -70,9 +70,9 @@ const HeadingCell = (props: HeadingCellProps) => {
         !isCurrentSort && 'opacity-0 group-hover:opacity-100',
     );
 
-    let Icon = ChevronUpIcon;
+    let Icon = ArrowSmUpIcon;
     if ((isCurrentSort && currentSortDirection === 'descending') || (!isCurrentSort && defaultSortDirection === 'descending')) {
-        Icon = ChevronDownIcon;
+        Icon = ArrowSmDownIcon;
     }
 
     return (

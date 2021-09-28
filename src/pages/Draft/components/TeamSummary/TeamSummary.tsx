@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { myTeamId, RosterSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
+import Listbox from '../../../../components/Listbox/Listbox';
+import { RosterSettings, Team, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import { PlayerData } from '../../../../hooks/usePlayerData/usePlayerData';
 import { DraftPick } from '../../Draft';
 
 interface MyTeamProps {
     draftPicks: DraftPick[];
-    draftStarted: boolean;
 }
 
 interface PlayerRowProps {
@@ -68,10 +68,12 @@ const PlayerRow = ({ player, position }: PlayerRowProps): JSX.Element => (
     </div>
 );
 
-const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null => {
+const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
     const [settings] = useSettings();
 
-    const myTeamRoster = React.useMemo(() => {
+    const [team, setTeam] = React.useState<Team>(settings.teams[0]);
+
+    const teamRoster = React.useMemo(() => {
         const roster: Record<keyof RosterSettings, PlayerData[]> = {
             center: [],
             leftWing: [],
@@ -81,11 +83,11 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
             bench: [],
         };
 
-        const myPicks = draftPicks
-            .filter((dp) => dp.playerSelected !== null && dp.team.id === myTeamId)
+        const teamPicks = draftPicks
+            .filter((dp) => dp.playerSelected !== null && dp.team.id === team.id)
             .map((dp) => dp.playerSelected) as PlayerData[];
 
-        for (const player of myPicks) {
+        for (const player of teamPicks) {
             const position = player.position?.toLowerCase();
 
             if (!position) {
@@ -108,17 +110,22 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
         }
 
         return roster;
-    }, [draftPicks, settings]);
-
-    if (!draftStarted) {
-        return null;
-    }
+    }, [draftPicks, settings, team]);
 
     return (
         <>
-            <h2 className="mb-2 text-lg font-medium text-gray-800">
-                Your team
+            <h2 className="mb-4 text-lg font-medium text-gray-800">
+                Team summary
             </h2>
+            <div className="mb-2">
+                <Listbox
+                    label="Team"
+                    onChange={setTeam}
+                    optionTransform={(team) => team.name}
+                    options={settings.teams}
+                    value={team}
+                />
+            </div>
             <div>
                 <div className="relative flex items-center justify-center py-1">
                     <div className="absolute inset-x-0 inset-y-1/2 border-t" />
@@ -126,8 +133,8 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                         Center
                     </h3>
                 </div>
-                {myTeamRoster.center.map((pd) => <PlayerRow player={pd} position="C" />)}
-                {renderEmptySlots(settings.roster.center - myTeamRoster.center.length, 'C')}
+                {teamRoster.center.map((pd) => <PlayerRow player={pd} position="C" />)}
+                {renderEmptySlots(settings.roster.center - teamRoster.center.length, 'C')}
             </div>
             <div>
                 <div className="relative flex items-center justify-center py-1">
@@ -136,8 +143,8 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                         Left wing
                     </h3>
                 </div>
-                {myTeamRoster.leftWing.map((pd) => <PlayerRow player={pd} position="LW" />)}
-                {renderEmptySlots(settings.roster.leftWing - myTeamRoster.leftWing.length, 'LW')}
+                {teamRoster.leftWing.map((pd) => <PlayerRow player={pd} position="LW" />)}
+                {renderEmptySlots(settings.roster.leftWing - teamRoster.leftWing.length, 'LW')}
             </div>
             <div>
                 <div className="relative flex items-center justify-center py-1">
@@ -146,8 +153,8 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                         Right wing
                     </h3>
                 </div>
-                {myTeamRoster.rightWing.map((pd) => <PlayerRow player={pd} position="RW" />)}
-                {renderEmptySlots(settings.roster.rightWing - myTeamRoster.rightWing.length, 'RW')}
+                {teamRoster.rightWing.map((pd) => <PlayerRow player={pd} position="RW" />)}
+                {renderEmptySlots(settings.roster.rightWing - teamRoster.rightWing.length, 'RW')}
             </div>
             <div>
                 <div className="relative flex items-center justify-center py-1">
@@ -156,8 +163,8 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                         Defense
                     </h3>
                 </div>
-                {myTeamRoster.defense.map((pd) => <PlayerRow player={pd} position="D" />)}
-                {renderEmptySlots(settings.roster.defense - myTeamRoster.defense.length, 'D')}
+                {teamRoster.defense.map((pd) => <PlayerRow player={pd} position="D" />)}
+                {renderEmptySlots(settings.roster.defense - teamRoster.defense.length, 'D')}
             </div>
             <div>
                 <div className="relative flex items-center justify-center py-1">
@@ -166,10 +173,10 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                         Goalie
                     </h3>
                 </div>
-                {myTeamRoster.goalie.map((pd) => <PlayerRow player={pd} position="G" />)}
-                {renderEmptySlots(settings.roster.goalie - myTeamRoster.goalie.length, 'G')}
+                {teamRoster.goalie.map((pd) => <PlayerRow player={pd} position="G" />)}
+                {renderEmptySlots(settings.roster.goalie - teamRoster.goalie.length, 'G')}
             </div>
-            {settings.roster.bench > 0 || myTeamRoster.bench.length > 0 ? (
+            {settings.roster.bench > 0 || teamRoster.bench.length > 0 ? (
                 <div>
                     <div className="relative flex items-center justify-center py-1">
                         <div className="absolute inset-x-0 inset-y-1/2 border-t" />
@@ -177,12 +184,12 @@ const MyTeam = ({ draftPicks, draftStarted }: MyTeamProps): JSX.Element | null =
                             Bench
                         </h3>
                     </div>
-                    {myTeamRoster.bench.map((pd) => <PlayerRow player={pd} position="BN" />)}
-                    {renderEmptySlots(settings.roster.bench - myTeamRoster.bench.length, 'BN')}
+                    {teamRoster.bench.map((pd) => <PlayerRow player={pd} position="BN" />)}
+                    {renderEmptySlots(settings.roster.bench - teamRoster.bench.length, 'BN')}
                 </div>
             ) : null}
         </>
     );
 };
 
-export default MyTeam;
+export default TeamSummary;

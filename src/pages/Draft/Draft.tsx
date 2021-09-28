@@ -7,9 +7,9 @@ import { toast } from '../../components/Toast/Toast';
 import { SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
 import { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
 import DraftList from './components/DraftList/DraftList';
-import MyTeam from './components/MyTeam/MyTeam';
 import PlayersTable from './components/PlayersTable/PlayersTable';
 import ResetModal from './components/ResetModal/ResetModal';
+import TeamSummary from './components/TeamSummary/TeamSummary';
 
 export interface DraftPick {
     pickNumber: number;
@@ -121,18 +121,17 @@ const Draft = (): JSX.Element => {
                         </section>
                     </div>
                     <section className="col-span-2 order-1 h-full px-4 md:px-6 py-6 overflow-y-auto">
-                        <DraftList
-                            currentPickNumber={currentPickNumber}
-                            draftPicks={draftPicks}
-                            draftStarted={draftStarted}
-                            numberOfTeams={settings.teams.length}
-                        />
+                        {draftStarted ? (
+                            <DraftList
+                                currentPickNumber={currentPickNumber}
+                                draftPicks={draftPicks}
+                            />
+                        ) : null}
                     </section>
                     <section className="col-span-2 order-3 h-full px-4 md:px-6 py-6 overflow-y-auto">
-                        <MyTeam
-                            draftPicks={draftPicks}
-                            draftStarted={draftStarted}
-                        />
+                        {draftStarted ? (
+                            <TeamSummary draftPicks={draftPicks} />
+                        ) : null}
                     </section>
                 </div>
             </div>

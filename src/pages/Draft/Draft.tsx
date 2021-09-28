@@ -7,6 +7,7 @@ import { toast } from '../../components/Toast/Toast';
 import { SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
 import { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
 import DraftList from './components/DraftList/DraftList';
+import MyTeam from './components/MyTeam/MyTeam';
 import PlayersTable from './components/PlayersTable/PlayersTable';
 import ResetModal from './components/ResetModal/ResetModal';
 
@@ -51,12 +52,6 @@ const Draft = (): JSX.Element => {
     const [draftPicks, setDraftPicks] = React.useState(createDraftOrder(settings));
     const [draftStarted, setDraftStarted] = React.useState(false);
     const [showResetModal, setShowResetModal] = React.useState(false);
-
-    const draftedPlayers = React.useMemo(() => {
-        return draftPicks
-            .filter((dp) => dp.playerSelected !== null)
-            .map((dp) => dp.playerSelected) as PlayerData[];
-    }, [draftPicks]);
 
     const handleCloseResetModal = (resetConfirmed: boolean) => {
         if (resetConfirmed) {
@@ -119,7 +114,7 @@ const Draft = (): JSX.Element => {
                     <section>
                         <PlayersTable
                             canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
-                            draftedPlayers={draftedPlayers}
+                            draftPicks={draftPicks}
                             onDraftPlayer={handleDraftPlayer}
                         />
                     </section>
@@ -127,12 +122,16 @@ const Draft = (): JSX.Element => {
                 <section className="col-span-2 order-1">
                     <DraftList
                         currentPickNumber={currentPickNumber}
+                        draftPicks={draftPicks}
                         draftStarted={draftStarted}
                         numberOfTeams={settings.teams.length}
-                        picks={draftPicks}
                     />
                 </section>
                 <section className="col-span-2 order-3">
+                    <MyTeam
+                        draftPicks={draftPicks}
+                        draftStarted={draftStarted}
+                    />
                 </section>
             </div>
             {draftStarted ? (

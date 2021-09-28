@@ -7,10 +7,11 @@ import Select from '../../../../components/Select/Select';
 import Spinner from '../../../../components/Spinner/Spinner';
 import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import usePlayerData, { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
+import { DraftPick } from '../../Draft';
 
 interface PlayersTableProps {
     canDraftPlayers: boolean;
-    draftedPlayers: PlayerData[];
+    draftPicks: DraftPick[];
     onDraftPlayer: (player: PlayerData) => void;
 }
 
@@ -77,7 +78,7 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
     }
 };
 
-const PlayersTable = ({  canDraftPlayers, draftedPlayers, onDraftPlayer }: PlayersTableProps): JSX.Element => {
+const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTableProps): JSX.Element => {
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
@@ -86,6 +87,12 @@ const PlayersTable = ({  canDraftPlayers, draftedPlayers, onDraftPlayer }: Playe
     const [settings] = useSettings();
 
     const searchInput = React.useRef<HTMLInputElement>(null);
+
+    const draftedPlayers = React.useMemo(() => {
+        return draftPicks
+            .filter((dp) => dp.playerSelected !== null)
+            .map((dp) => dp.playerSelected) as PlayerData[];
+    }, [draftPicks]);
 
     const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
 

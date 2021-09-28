@@ -6,27 +6,27 @@ import { DraftPick } from '../../Draft';
 
 interface DraftListProps {
     currentPickNumber: number;
+    draftPicks: DraftPick[];
     draftStarted: boolean;
     numberOfTeams: number;
-    picks: DraftPick[];
 }
 
 const DraftList = (props: DraftListProps): JSX.Element | null => {
     const {
         currentPickNumber,
+        draftPicks,
         draftStarted,
         numberOfTeams,
-        picks,
     } = props;
 
     const currentRound = Math.floor((currentPickNumber - 1) / numberOfTeams) + 1;
-    const nextPickIn = picks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId);
+    const nextPickIn = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId);
 
     if (!draftStarted) {
         return null;
     }
 
-    if (currentPickNumber === picks.length) {
+    if (currentPickNumber === draftPicks.length) {
         return (
             <div className="px-4 py-2 rounded-md bg-green-100 text-base text-green-900 font-medium transition-colors">
                 Draft complete!
@@ -44,7 +44,7 @@ const DraftList = (props: DraftListProps): JSX.Element | null => {
                     On the clock
                 </h3>
                 <div className="mb-1 text-xl font-medium">
-                    {picks[currentPickNumber - 1].team.name}
+                    {draftPicks[currentPickNumber - 1].team.name}
                 </div>
                 <div className="flex space-x-1 text-xs text-gray-500">
                     <div>
@@ -63,7 +63,7 @@ const DraftList = (props: DraftListProps): JSX.Element | null => {
                     </div>
                 ) : (
                     <div className="px-4 py-2 rounded-b-md bg-gray-200 text-base text-gray-800 font-medium transition-colors">
-                        {nextPickIn} picks until your turn
+                        {nextPickIn === -1 ? 'No picks remaining' : `${nextPickIn} picks until your turn`}
                     </div>
                 )}
             </div>
@@ -74,7 +74,7 @@ const DraftList = (props: DraftListProps): JSX.Element | null => {
                 </div>
             </div>
             <ol>
-                {picks.slice(currentPickNumber).map((dp) => (
+                {draftPicks.slice(currentPickNumber).map((dp) => (
                     <>
                         {(dp.pickNumber - 1) % numberOfTeams === 0 ? (
                             <li className="relative flex items-center justify-center py-1">
@@ -86,14 +86,14 @@ const DraftList = (props: DraftListProps): JSX.Element | null => {
                         ) : null}
                         <li
                             className={clsx(
-                                'grid grid-cols-12 gap-4 px-2 py-0.5 text-sm',
+                                'flex gap-4 px-2 py-0.5 text-sm',
                                 dp.team.id === myTeamId && 'font-medium',
                             )}
                         >
-                            <div className="col-span-1 text-right">
+                            <div className="flex-shrink-0 w-5 text-right">
                                 {dp.pickNumber}
                             </div>
-                            <div className="col-span-11">
+                            <div className="flex-1">
                                 {dp.team.name}
                             </div>
                         </li>

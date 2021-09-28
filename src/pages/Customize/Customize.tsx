@@ -21,7 +21,7 @@ const Customize = (): JSX.Element => {
                             <NavLink
                                 to={url}
                                 activeClassName="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
-                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring focus:ring-blue-300 transition"
                                 exact
                             >
                                 <HomeIcon className="h-5 w-5 mr-2 -ml-0.5 opacity-60" />
@@ -32,7 +32,7 @@ const Customize = (): JSX.Element => {
                             <NavLink
                                 to={`${url}/data`}
                                 activeClassName="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
-                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring focus:ring-blue-300 transition"
                             >
                                 <DatabaseIcon className="h-5 w-5 mr-2 -ml-0.5 opacity-60" />
                                 Data
@@ -42,7 +42,7 @@ const Customize = (): JSX.Element => {
                             <NavLink
                                 to={`${url}/settings`}
                                 activeClassName="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
-                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring focus:ring-blue-300 transition"
                             >
                                 <CogIcon className="h-5 w-5 mr-2 -ml-0.5 opacity-60" />
                                 Settings
@@ -52,7 +52,7 @@ const Customize = (): JSX.Element => {
                             <NavLink
                                 to={`${url}/teams`}
                                 activeClassName="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
-                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                                className="flex items-center px-3 py-1.5 rounded-md text-base font-medium hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring focus:ring-blue-300 transition"
                             >
                                 <UsersIcon className="h-5 w-5 mr-2 -ml-0.5 opacity-60" />
                                 Teams

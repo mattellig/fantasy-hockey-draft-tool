@@ -1,8 +1,6 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
-import { getLinkStyles } from '../../../../components/Link/Link';
 import RadioButton from '../../../../components/RadioButton/RadioButton';
 import Select from '../../../../components/Select/Select';
 import { toast } from '../../../../components/Toast/Toast';

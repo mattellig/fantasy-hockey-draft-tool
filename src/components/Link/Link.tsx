@@ -11,7 +11,7 @@ interface LinkProps {
 export const getLinkStyles = (removeUnderline: boolean) => clsx(
     'rounded text-blue-600',
     !removeUnderline && 'underline hover:no-underline',
-    'hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition',
+    'hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition',
 );
 
 const Link = (props: LinkProps): JSX.Element => {

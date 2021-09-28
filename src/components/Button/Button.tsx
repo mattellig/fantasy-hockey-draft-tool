@@ -22,14 +22,14 @@ const getButtonStyles = (loading: boolean, link: boolean, destructive: boolean, 
     } else if (destructive) {
         colorClasses = 'bg-red-600 text-white hover:bg-red-500 active:bg-red-700 focus:ring-red-300';
     } else if (link) {
-        colorClasses = 'text-blue-600 hover:text-blue-800 disabled:text-gray-700 focus:ring-blue-500';
+        colorClasses = 'text-blue-600 hover:text-blue-800 disabled:text-gray-700 focus-visible:ring-blue-400';
     } else {
         colorClasses = 'bg-gray-200 text-gray-700 hover:bg-gray-100 active:bg-gray-300 focus:ring-gray-400';
     }
 
     return clsx(
         'relative inline-flex items-center justify-center rounded-md text-sm font-medium focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition',
-        !link ? 'px-2.5 py-1.5 focus:ring' : 'focus:ring-2',
+        !link ? 'px-2.5 py-1.5 focus-visible:ring' : 'focus:ring-2',
         colorClasses,
         loading && 'opacity-75 pointer-events-none',
     );

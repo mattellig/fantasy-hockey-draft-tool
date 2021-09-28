@@ -38,7 +38,7 @@ const Listbox = <T extends unknown>(props: ListboxProps<T>): JSX.Element => {
             </HeadlessListbox.Label>
             <div className="relative">
                 <HeadlessListbox.Button
-                    className="relative w-full py-2 pl-3 pr-10 rounded-md border border-gray-300 bg-white text-left text-sm focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200 transition"
+                    className="relative w-full py-2 pl-3 pr-10 rounded-md border border-gray-300 bg-white text-left text-sm cursor-default focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200 transition"
                 >
                     <span className="block truncate">
                         {optionTransform(value)}

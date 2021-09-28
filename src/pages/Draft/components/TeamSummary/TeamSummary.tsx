@@ -38,7 +38,7 @@ const renderEmptySlots = (count: number, position: string) => {
 
     for (let i = 0; i < count; i++) {
         slots.push(
-            <div className="flex gap-4 py-0.5 text-sm">
+            <div key={i} className="flex gap-4 py-0.5 text-sm">
                 <div className="flex-shrink-0 w-5 text-right">
                     {position}
                 </div>
@@ -113,7 +113,7 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
     }, [draftPicks, settings, team]);
 
     return (
-        <>
+        <section className="h-3/5 overflow-y-auto px-4 md:px-6 py-6 border-b">
             <h2 className="mb-4 text-lg font-medium text-gray-800">
                 Team summary
             </h2>
@@ -133,7 +133,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                         Center
                     </h3>
                 </div>
-                {teamRoster.center.map((pd) => <PlayerRow player={pd} position="C" />)}
+                {teamRoster.center.map((pd, index) =>
+                    <PlayerRow
+                        key={`${pd.name}-${index}`}
+                        player={pd}
+                        position="C"
+                    />
+                )}
                 {renderEmptySlots(settings.roster.center - teamRoster.center.length, 'C')}
             </div>
             <div>
@@ -143,7 +149,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                         Left wing
                     </h3>
                 </div>
-                {teamRoster.leftWing.map((pd) => <PlayerRow player={pd} position="LW" />)}
+                {teamRoster.leftWing.map((pd, index) =>
+                    <PlayerRow
+                        key={`${pd.name}-${index}`}
+                        player={pd}
+                        position="LW"
+                    />
+                )}
                 {renderEmptySlots(settings.roster.leftWing - teamRoster.leftWing.length, 'LW')}
             </div>
             <div>
@@ -153,7 +165,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                         Right wing
                     </h3>
                 </div>
-                {teamRoster.rightWing.map((pd) => <PlayerRow player={pd} position="RW" />)}
+                {teamRoster.rightWing.map((pd, index) =>
+                    <PlayerRow
+                        key={`${pd.name}-${index}`}
+                        player={pd}
+                        position="RW"
+                    />
+                )}
                 {renderEmptySlots(settings.roster.rightWing - teamRoster.rightWing.length, 'RW')}
             </div>
             <div>
@@ -163,7 +181,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                         Defense
                     </h3>
                 </div>
-                {teamRoster.defense.map((pd) => <PlayerRow player={pd} position="D" />)}
+                {teamRoster.defense.map((pd, index) =>
+                    <PlayerRow
+                        key={`${pd.name}-${index}`}
+                        player={pd}
+                        position="D"
+                    />
+                )}
                 {renderEmptySlots(settings.roster.defense - teamRoster.defense.length, 'D')}
             </div>
             <div>
@@ -173,7 +197,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                         Goalie
                     </h3>
                 </div>
-                {teamRoster.goalie.map((pd) => <PlayerRow player={pd} position="G" />)}
+                {teamRoster.goalie.map((pd, index) =>
+                    <PlayerRow
+                        key={`${pd.name}-${index}`}
+                        player={pd}
+                        position="G"
+                    />
+                )}
                 {renderEmptySlots(settings.roster.goalie - teamRoster.goalie.length, 'G')}
             </div>
             {settings.roster.bench > 0 || teamRoster.bench.length > 0 ? (
@@ -184,11 +214,17 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                             Bench
                         </h3>
                     </div>
-                    {teamRoster.bench.map((pd) => <PlayerRow player={pd} position="BN" />)}
+                    {teamRoster.bench.map((pd, index) =>
+                        <PlayerRow
+                            key={`${pd.name}-${index}`}
+                            player={pd}
+                            position="BN"
+                        />
+                    )}
                     {renderEmptySlots(settings.roster.bench - teamRoster.bench.length, 'BN')}
                 </div>
             ) : null}
-        </>
+        </section>
     );
 };
 

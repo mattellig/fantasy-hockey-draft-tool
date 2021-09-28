@@ -7,15 +7,15 @@ import { DraftPick } from '../../Draft';
 interface DraftListProps {
     currentPickNumber: number;
     draftPicks: DraftPick[];
+    turnsUntilNextPick: number;
 }
 
-const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Element | null => {
+const DraftList = ({ currentPickNumber, draftPicks, turnsUntilNextPick }: DraftListProps): JSX.Element | null => {
     const [settings] = useSettings();
 
     const numberOfTeams = settings.teams.length;
-
     const currentRound = Math.floor((currentPickNumber - 1) / numberOfTeams) + 1;
-    const nextPickIn = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId);
+    const isCurrentPick = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId) === 0;
 
     if (currentPickNumber === draftPicks.length) {
         return (
@@ -48,13 +48,21 @@ const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Eleme
                 </div>
             </div>
             <div className="-mt-px mb-6">
-                {nextPickIn === 0 ? (
+                {isCurrentPick ? (
                     <div className="px-4 py-2 rounded-b-md bg-yellow-300 text-base text-gray-800 font-medium transition-colors">
                         It's your turn!
                     </div>
                 ) : (
                     <div className="px-4 py-2 rounded-b-md bg-gray-200 text-base text-gray-800 font-medium transition-colors">
-                        {nextPickIn === -1 ? 'No picks remaining' : `${nextPickIn} picks until your turn`}
+                        {turnsUntilNextPick === -1 ? (
+                            <span>
+                                No picks remaining
+                            </span>
+                        ) : (
+                            <span>
+                                {turnsUntilNextPick} {turnsUntilNextPick === 1 ? 'pick' : 'picks'} until your turn
+                            </span>
+                        )}
                     </div>
                 )}
             </div>
@@ -66,7 +74,7 @@ const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Eleme
             </div>
             <ol>
                 {draftPicks.slice(currentPickNumber).map((dp) => (
-                    <>
+                    <React.Fragment key={dp.pickNumber}>
                         {(dp.pickNumber - 1) % numberOfTeams === 0 ? (
                             <li className="relative flex items-center justify-center py-1">
                                 <div className="absolute inset-x-0 inset-y-1/2 border-t" />
@@ -88,7 +96,7 @@ const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Eleme
                                 {dp.team.name}
                             </div>
                         </li>
-                    </>
+                    </React.Fragment>
                 ))}
             </ol>
         </>

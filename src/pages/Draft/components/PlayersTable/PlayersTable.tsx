@@ -6,13 +6,14 @@ import Input from '../../../../components/Input/Input';
 import Select from '../../../../components/Select/Select';
 import Spinner from '../../../../components/Spinner/Spinner';
 import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
-import usePlayerData, { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
-import { DraftPick } from '../../Draft';
+import { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
 import useTableHeadings from './useTableHeadings';
 
 interface PlayersTableProps {
     canDraftPlayers: boolean;
-    draftPicks: DraftPick[];
+    data: PlayerData[] | undefined;
+    draftedPlayers: PlayerData[];
+    loading: boolean;
     onDraftPlayer: (player: PlayerData) => void;
 }
 
@@ -66,7 +67,15 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
     }
 };
 
-const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTableProps): JSX.Element => {
+const PlayersTable = (props: PlayersTableProps): JSX.Element => {
+    const {
+        canDraftPlayers,
+        data,
+        draftedPlayers,
+        loading,
+        onDraftPlayer,
+    } = props;
+
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
@@ -76,14 +85,6 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
 
     const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
     const tableHeadings = useTableHeadings(scoringSettingEntries);
-
-    const { data, loading } = usePlayerData();
-
-    const draftedPlayers = React.useMemo(() => {
-        return draftPicks
-            .filter((dp) => dp.playerSelected !== null)
-            .map((dp) => dp.playerSelected) as PlayerData[];
-    }, [draftPicks]);
 
     const sortedData = React.useMemo(() => {
         if (!data) return undefined;
@@ -178,35 +179,37 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
 
     return (
         <>
-            <h2 className="mb-2 text-lg font-medium text-gray-800">
-                Players
-            </h2>
-            <div className="grid grid-cols-12 gap-4 mb-4">
-                <div className="col-span-3">
-                    <Input
-                        id="search-players-input"
-                        label="Find player by name"
-                        onChange={(value) => setPlayerSearch(value)}
-                        type="search"
-                        value={playerSearch}
-                    />
-                </div>
-                <div className="col-span-2">
-                    <Select
-                        id="position-select"
-                        label="Position"
-                        onChange={(value) => setPositionFilter(value)}
-                        options={positionFilterOptions}
-                        value={positionFilter}
-                    />
-                </div>
-                <div className="col-span-2 flex items-end pb-1.5">
-                    <Checkbox
-                        checked={showDrafted}
-                        id="show-drafted-checkbox"
-                        label="Show drafted"
-                        onChange={(checked) => setShowDrafted(checked)}
-                    />
+            <div className="px-4 md:px-6 mb-4">
+                <h2 className="mb-2 text-lg font-medium text-gray-800">
+                    Players
+                </h2>
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-3">
+                        <Input
+                            id="search-players-input"
+                            label="Find player by name"
+                            onChange={(value) => setPlayerSearch(value)}
+                            type="search"
+                            value={playerSearch}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Select
+                            id="position-select"
+                            label="Position"
+                            onChange={(value) => setPositionFilter(value)}
+                            options={positionFilterOptions}
+                            value={positionFilter}
+                        />
+                    </div>
+                    <div className="col-span-2 flex items-end pb-1.5">
+                        <Checkbox
+                            checked={showDrafted}
+                            id="show-drafted-checkbox"
+                            label="Show drafted"
+                            onChange={(checked) => setShowDrafted(checked)}
+                        />
+                    </div>
                 </div>
             </div>
             <DataTable
@@ -230,7 +233,7 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
                     </DataTable.Row>
                 ) : filteredData?.length ? filteredData.map((row) => (
                     <DataTable.Row key={`${row.name}-${row.position}`}>
-                        <DataTable.Cell align="right">
+                        <DataTable.Cell align="right" collapsing>
                             {row.rank}
                         </DataTable.Cell>
                         <DataTable.Cell>

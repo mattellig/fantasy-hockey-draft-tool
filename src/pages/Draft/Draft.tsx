@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
 import { getLinkStyles } from '../../components/Link/Link';
 import { toast } from '../../components/Toast/Toast';
-import { SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
-import { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
+import { myTeamId, SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
+import usePlayerData, { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
 import DraftList from './components/DraftList/DraftList';
+import PickPredictor from './components/PickPredictor/PickPredictor';
 import PlayersTable from './components/PlayersTable/PlayersTable';
 import ResetModal from './components/ResetModal/ResetModal';
 import TeamSummary from './components/TeamSummary/TeamSummary';
@@ -53,6 +54,16 @@ const Draft = (): JSX.Element => {
     const [draftStarted, setDraftStarted] = React.useState(false);
     const [showResetModal, setShowResetModal] = React.useState(false);
 
+    const { data, loading } = usePlayerData();
+
+    const turnsUntilNextPick = draftPicks.slice(currentPickNumber).findIndex((dp) => dp.team.id === myTeamId) + 1;
+
+    const draftedPlayers = React.useMemo(() => {
+        return draftPicks
+            .filter((dp) => dp.playerSelected !== null)
+            .map((dp) => dp.playerSelected) as PlayerData[];
+    }, [draftPicks]);
+
     const handleCloseResetModal = (resetConfirmed: boolean) => {
         if (resetConfirmed) {
             setDraftStarted(false);
@@ -78,8 +89,8 @@ const Draft = (): JSX.Element => {
         <>
             <div className="h-screen -mt-12 pt-12">
                 <div className="grid grid-cols-12 h-full overflow-hidden">
-                    <div className="col-span-8 order-2 h-full px-4 md:px-6 py-6 overflow-y-auto">
-                        <div className="mb-6">
+                    <div className="col-span-8 order-2 h-full py-6 overflow-y-auto">
+                        <div className="px-4 md:px-6 mb-6">
                             <h1 className="mb-2 text-2xl font-medium text-gray-800">
                                 Draft
                             </h1>
@@ -87,6 +98,7 @@ const Draft = (): JSX.Element => {
                                 {!draftStarted ? (
                                     <>
                                         <Button
+                                            disabled={loading}
                                             icon={<ClockIcon />}
                                             link
                                             onClick={() => setDraftStarted(true)}
@@ -115,7 +127,9 @@ const Draft = (): JSX.Element => {
                         <section>
                             <PlayersTable
                                 canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
-                                draftPicks={draftPicks}
+                                data={data}
+                                draftedPlayers={draftedPlayers}
+                                loading={loading}
                                 onDraftPlayer={handleDraftPlayer}
                             />
                         </section>
@@ -125,14 +139,22 @@ const Draft = (): JSX.Element => {
                             <DraftList
                                 currentPickNumber={currentPickNumber}
                                 draftPicks={draftPicks}
+                                turnsUntilNextPick={turnsUntilNextPick}
                             />
                         ) : null}
                     </section>
-                    <section className="col-span-2 order-3 h-full px-4 md:px-6 py-6 overflow-y-auto">
+                    <div className="col-span-2 order-3 h-full overflow-hidden">
                         {draftStarted ? (
-                            <TeamSummary draftPicks={draftPicks} />
+                            <>
+                                <TeamSummary draftPicks={draftPicks} />
+                                <PickPredictor
+                                    allPlayers={data!}
+                                    draftedPlayers={draftedPlayers}
+                                    turnsUntilNextPick={turnsUntilNextPick}
+                                />
+                            </>
                         ) : null}
-                    </section>
+                    </div>
                 </div>
             </div>
             {draftStarted ? (

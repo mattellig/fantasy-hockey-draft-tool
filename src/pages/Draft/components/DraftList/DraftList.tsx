@@ -54,7 +54,7 @@ const DraftList = ({ currentPickNumber, draftPicks, turnsUntilNextPick }: DraftL
                     </div>
                 ) : (
                     <div className="px-4 py-2 rounded-b-md bg-gray-200 text-base text-gray-800 font-medium transition-colors">
-                        {turnsUntilNextPick === -1 ? (
+                        {turnsUntilNextPick <= 0 ? (
                             <span>
                                 No picks remaining
                             </span>

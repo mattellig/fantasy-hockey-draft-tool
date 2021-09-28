@@ -67,7 +67,14 @@ const Listbox = <T extends unknown>(props: ListboxProps<T>): JSX.Element => {
                                 )}
                                 value={o}
                             >
-                                {optionTransform(o)}
+                                {({ selected }) => (
+                                    <span className={clsx(
+                                        'block truncate',
+                                        selected && 'font-medium',
+                                    )}>
+                                        {optionTransform(o)}
+                                    </span>
+                                )}
                             </HeadlessListbox.Option>
                         ))}
                     </HeadlessListbox.Options>

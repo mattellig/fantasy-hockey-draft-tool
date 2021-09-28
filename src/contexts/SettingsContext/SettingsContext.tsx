@@ -124,7 +124,11 @@ const getDefaultSettings = () => {
     if (storedSettings) {
         const parsedSettings: SettingsState = JSON.parse(storedSettings);
 
-        return { ...defaultSettings, ...parsedSettings };
+        return {
+            ...defaultSettings,
+            ...parsedSettings,
+            data: defaultSettings.data, // custom files aren't saved, so reset data always
+        };
     }
 
     return defaultSettings;

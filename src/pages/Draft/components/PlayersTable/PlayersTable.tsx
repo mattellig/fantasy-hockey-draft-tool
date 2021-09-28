@@ -7,6 +7,7 @@ import Select from '../../../../components/Select/Select';
 import Spinner from '../../../../components/Spinner/Spinner';
 import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
+import sortByPlayerStat from '../../../../utils/sortByPlayerStat/sortByPlayerStat';
 import useTableHeadings from './useTableHeadings';
 
 interface PlayersTableProps {
@@ -89,57 +90,64 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
     const sortedData = React.useMemo(() => {
         if (!data) return undefined;
 
-        let sortFunction;
+        let compareFn;
 
         const columnToSort = tableHeadings[sort.index]?.title;
         switch (columnToSort) {
             case 'Rank':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? b.rank - a.rank
-                    : a.rank - b.rank
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.rank,
+                    b.rank,
+                    sort.direction === 'ascending',
+                ));
                 break;
             case 'FP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? b.fantasyPoints - a.fantasyPoints
-                    : a.fantasyPoints - b.fantasyPoints
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.fantasyPoints,
+                    b.fantasyPoints,
+                    sort.direction === 'ascending',
+                ));
                 break;
             case 'VORP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? b.valueOverReplacement - a.valueOverReplacement
-                    : a.valueOverReplacement - b.valueOverReplacement
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.valueOverReplacement,
+                    b.valueOverReplacement,
+                    sort.direction === 'ascending',
+                ));
                 break;
             case 'ADP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? (b.averageDraftPosition || 0) - (a.averageDraftPosition || 0)
-                    : (a.averageDraftPosition || 0) - (b.averageDraftPosition || 0)
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.averageDraftPosition,
+                    b.averageDraftPosition,
+                    sort.direction === 'ascending',
+                ));
                 break;
             case 'Diff.':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? (b.difference || 0) - (a.difference || 0)
-                    : (a.difference || 0) - (b.difference || 0)
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.difference,
+                    b.difference,
+                    sort.direction === 'ascending',
+                ));
                 break;
             case 'GP':
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? (b.gamesPlayed || 0) - (a.gamesPlayed || 0)
-                    : (a.gamesPlayed || 0) - (b.gamesPlayed || 0)
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.gamesPlayed,
+                    b.gamesPlayed,
+                    sort.direction === 'ascending',
+                ));
                 break;
             default: {
                 const key = headingsToSettingsMap[columnToSort];
-                sortFunction = ((a: PlayerData, b: PlayerData) => sort.direction === 'descending'
-                    ? (b.totals[key] || 0) - (a.totals[key] || 0)
-                    : (a.totals[key] || 0) - (b.totals[key] || 0)
-                );
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                    a.totals[key],
+                    b.totals[key],
+                    sort.direction === 'ascending',
+                ));
                 break;
             }
         }
 
-        return [...data].sort(sortFunction);
+        return [...data].sort(compareFn);
     }, [data, sort]);
 
     const filteredData = React.useMemo(() => {

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import DataTable, { DataTableHeading } from '../../../../components/DataTable/DataTable';
 import { PlayerData } from '../../../../hooks/usePlayerData/usePlayerData';
+import sortByPlayerStat from '../../../../utils/sortByPlayerStat/sortByPlayerStat';
 
 interface PickPredictorProps {
     allPlayers: PlayerData[];
@@ -21,7 +22,7 @@ const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickP
     const expectedPicks = React.useMemo(() => {
         return [...allPlayers]
             .filter((pd) => !draftedPlayers.includes(pd))
-            .sort((a, b) => (a.averageDraftPosition || 0) - (b.averageDraftPosition || 0))
+            .sort((a, b) => sortByPlayerStat(a.averageDraftPosition, b.averageDraftPosition, true))
             .slice(0, Math.round(turnsUntilNextPick * (1 + (1 - adpStrictness))))
             .sort((a, b) => b.valueOverReplacement - a.valueOverReplacement);
     }, [allPlayers, draftedPlayers]);

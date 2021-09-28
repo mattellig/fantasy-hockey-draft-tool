@@ -73,6 +73,12 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
 
     const [team, setTeam] = React.useState<Team>(settings.teams[0]);
 
+    const sortedTeams = React.useMemo(() => {
+        return [...settings.teams].sort((a, b) => {
+            return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+        });
+    }, [settings]);
+
     const teamRoster = React.useMemo(() => {
         const roster: Record<keyof RosterSettings, PlayerData[]> = {
             center: [],
@@ -123,7 +129,7 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
                     label="Team"
                     onChange={setTeam}
                     optionTransform={(team) => team.name}
-                    options={settings.teams}
+                    options={sortedTeams}
                     value={team}
                 />
             </div>

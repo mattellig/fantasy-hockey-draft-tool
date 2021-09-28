@@ -1,13 +1,14 @@
 import * as React from 'react';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
-import DataTable, { DataTableHeading } from '../../../../components/DataTable/DataTable';
+import DataTable from '../../../../components/DataTable/DataTable';
 import Input from '../../../../components/Input/Input';
 import Select from '../../../../components/Select/Select';
 import Spinner from '../../../../components/Spinner/Spinner';
 import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import usePlayerData, { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
 import { DraftPick } from '../../Draft';
+import useTableHeadings from './useTableHeadings';
 
 interface PlayersTableProps {
     canDraftPlayers: boolean;
@@ -15,42 +16,29 @@ interface PlayersTableProps {
     onDraftPlayer: (player: PlayerData) => void;
 }
 
-const settingsToAcronymMap: Record<keyof ScoringSettings, string> = {
-    goals: 'G',
-    assists: 'A',
-    points: 'PTS',
-    plusMinus: '+/-',
-    penaltyMinutes: 'PIM',
-    powerplayGoals: 'PPG',
-    powerplayAssists: 'PPA',
-    powerplayPoints: 'PPP',
-    gameWinningGoals: 'GWG',
-    shotsOnGoal: 'SOG',
-    faceoffsWon: 'FOW',
-    faceoffsLost: 'FOL',
-    hits: 'HIT',
-    blocks: 'BLK',
-    wins: 'W',
-    losses: 'L',
-    goalsAgainst: 'GA',
-    goalsAgainstAverage: 'GAA',
-    saves: 'SV',
-    savePercentage: 'SV%',
-    shutouts: 'SO',
+const headingsToSettingsMap: Record<string, keyof ScoringSettings> = {
+    G: 'goals',
+    A: 'assists',
+    PTS: 'points',
+    '+/-': 'plusMinus',
+    PIM: 'penaltyMinutes',
+    PPG: 'powerplayGoals',
+    PPA: 'powerplayAssists',
+    PPP: 'powerplayPoints',
+    GWG: 'gameWinningGoals',
+    SOG: 'shotsOnGoal',
+    FOW: 'faceoffsWon',
+    FOL: 'faceoffsLost',
+    HIT: 'hits',
+    BLK: 'blocks',
+    W: 'wins',
+    L: 'losses',
+    GA: 'goalsAgainst',
+    GAA: 'goalsAgainstAverage',
+    SV: 'saves',
+    'SV%': 'savePercentage',
+    SO: 'shutouts',
 };
-
-const fixedHeadings: DataTableHeading[] = [
-    { title: 'Rank', align: 'right' },
-    { title: 'Name' },
-    { title: 'Team', align: 'center' },
-    { title: 'Pos', align: 'center' },
-    { title: 'Draft', align: 'center' },
-    { title: 'FP', align: 'right' },
-    { title: 'VORP', align: 'right' },
-    { title: 'ADP', align: 'right' },
-    { title: 'Diff.', align: 'right' },
-    { title: 'GP', align: 'right' },
-];
 
 const positionFilterOptions = [
     'All positions',
@@ -79,14 +67,17 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
 };
 
 const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTableProps): JSX.Element => {
+    const [filteredData, setFilteredData] = React.useState<PlayerData[] | undefined>();
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
 
-    const { data, loading } = usePlayerData();
     const [settings] = useSettings();
 
-    const searchInput = React.useRef<HTMLInputElement>(null);
+    const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
+    const tableHeadings = useTableHeadings(scoringSettingEntries);
+
+    const { data, loading } = usePlayerData();
 
     const draftedPlayers = React.useMemo(() => {
         return draftPicks
@@ -94,25 +85,8 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
             .map((dp) => dp.playerSelected) as PlayerData[];
     }, [draftPicks]);
 
-    const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
-
-    const tableHeadings = React.useMemo(() => {
-        const headings = [...fixedHeadings];
-
-        for (const [key, value] of scoringSettingEntries) {
-            if (value) {
-                headings.push({
-                    title: settingsToAcronymMap[key as keyof ScoringSettings],
-                    align: 'right',
-                });
-            }
-        }
-
-        return headings;
-    }, [scoringSettingEntries]);
-
-    const filteredData = React.useMemo(() => {
-        if (!data) return undefined;
+    React.useEffect(() => {
+        if (!data) return;
 
         let dataCopy = [...data];
 
@@ -143,25 +117,64 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
             dataCopy = dataCopy.filter((pd) => pd.name?.toLowerCase().includes(playerSearch.toLowerCase()));
         }
 
-        dataCopy.sort((a, b) => b.valueOverReplacement - a.valueOverReplacement);
-
-        return dataCopy;
+        setFilteredData(dataCopy);
     }, [data, draftedPlayers, playerSearch, positionFilter, showDrafted]);
 
-    React.useEffect(() => {
-        const handleGlobalKeyDown = (event: KeyboardEvent) => {
-            if (event.key === '/' && document.activeElement !== searchInput.current) {
-                event.preventDefault();
-                searchInput.current?.focus();
+    const handleSort = (index: number, direction: string) => {
+        if (!filteredData) return;
+
+        let sortFunction;
+
+        const columnToSort = tableHeadings[index]?.title;
+        switch (columnToSort) {
+            case 'Rank':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? b.rank - a.rank
+                    : a.rank - b.rank
+                );
+                break;
+            case 'FP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? b.fantasyPoints - a.fantasyPoints
+                    : a.fantasyPoints - b.fantasyPoints
+                );
+                break;
+            case 'VORP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? b.valueOverReplacement - a.valueOverReplacement
+                    : a.valueOverReplacement - b.valueOverReplacement
+                );
+                break;
+            case 'ADP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? (b.averageDraftPosition || 0) - (a.averageDraftPosition || 0)
+                    : (a.averageDraftPosition || 0) - (b.averageDraftPosition || 0)
+                );
+                break;
+            case 'Diff.':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? (b.difference || 0) - (a.difference || 0)
+                    : (a.difference || 0) - (b.difference || 0)
+                );
+                break;
+            case 'GP':
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? (b.gamesPlayed || 0) - (a.gamesPlayed || 0)
+                    : (a.gamesPlayed || 0) - (b.gamesPlayed || 0)
+                );
+                break;
+            default: {
+                const key = headingsToSettingsMap[columnToSort];
+                sortFunction = ((a: PlayerData, b: PlayerData) => direction === 'descending'
+                    ? (b.totals[key] || 0) - (a.totals[key] || 0)
+                    : (a.totals[key] || 0) - (b.totals[key] || 0)
+                );
+                break;
             }
-        };
+        }
 
-        document.addEventListener('keydown', handleGlobalKeyDown);
-
-        return () => {
-            document.removeEventListener('keydown', handleGlobalKeyDown);
-        };
-    }, []);
+        setFilteredData([...filteredData].sort(sortFunction));
+    };
 
     return (
         <>
@@ -171,7 +184,6 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
             <div className="grid grid-cols-12 gap-4 mb-4">
                 <div className="col-span-3">
                     <Input
-                        ref={searchInput}
                         id="search-players-input"
                         label="Find player by name"
                         onChange={(value) => setPlayerSearch(value)}
@@ -197,7 +209,12 @@ const PlayersTable = ({ canDraftPlayers, draftPicks, onDraftPlayer }: PlayersTab
                     />
                 </div>
             </div>
-            <DataTable headings={tableHeadings}>
+            <DataTable
+                headings={tableHeadings}
+                initialSortColumnIndex={6}
+                initialSortDirection="descending"
+                onSort={handleSort}
+            >
                 {loading ? (
                     <DataTable.Row>
                         <DataTable.Cell align="center" colSpan={tableHeadings.length}>

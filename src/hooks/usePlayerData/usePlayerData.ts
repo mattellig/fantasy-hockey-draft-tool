@@ -1,6 +1,6 @@
 import Papa, { ParseError } from 'papaparse';
 import * as React from 'react';
-import { ReplacementLevelMethod, RosterSettings, SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
+import { ReplacementLevelMethod, RosterSettings, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
 import parseDataFile from '../../utils/parseDataFile/parseDataFile';
 
 export interface PlayerStats {

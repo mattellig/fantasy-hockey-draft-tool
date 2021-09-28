@@ -1,60 +1,150 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import * as React from 'react';
 
+type TableCellAlign = 'left' | 'center' | 'right';
+
 export interface DataTableHeading {
-    align?: 'left' | 'center' | 'right' | string;
+    align?: TableCellAlign;
+    defaultSortDirection?: SortDirection;
+    sortable?: boolean;
     title: string;
 }
+
+type SortDirection = 'ascending' | 'descending';
 
 interface DataTableProps {
     children?: React.ReactNode;
     headings?: DataTableHeading[];
+    initialSortColumnIndex?: number;
+    initialSortDirection?: SortDirection;
+    onSort?: (index: number, direction: SortDirection) => void;
 }
 
 interface RowProps {
     children?: React.ReactNode;
 }
 
+interface HeadingCellProps extends DataTableHeading {
+    currentSortDirection: SortDirection;
+    isCurrentSort: boolean;
+    onSort: () => void;
+}
+
 interface CellProps {
-    align?: 'left' | 'center' | 'right';
+    align?: TableCellAlign;
     children?: React.ReactNode;
     collapsing?: boolean;
     colSpan?: number;
     flush?: boolean;
 }
 
-const DataTable = ({ children, headings = [] }: DataTableProps): JSX.Element => (
-    <div className="relative overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead>
-                    <tr>
-                        {headings.map((heading, index) => {
-                            const styles = clsx(
-                                'p-2 border-b text-xs font-medium text-gray-800',
-                                (!heading.align || heading.align === 'left') && 'text-left',
-                                heading.align === 'right' && 'text-right',
-                                heading.align === 'center' && 'text-center',
-                            );
+const HeadingCell = (props: HeadingCellProps) => {
+    const {
+        align = 'left',
+        currentSortDirection,
+        defaultSortDirection = 'ascending',
+        isCurrentSort = false,
+        onSort,
+        sortable = false,
+        title,
+    } = props;
 
-                            return (
-                                <th key={index} className={styles}>
-                                    {heading.title}
-                                </th>
-                            );
-                        })}
-                    </tr>
-                </thead>
-                <tbody className="divide-y">
-                    {children}
-                </tbody>
-            </table>
+    const cellStyles = 'border-b text-xs font-medium text-gray-800';
+
+    if (!sortable) {
+        return (
+            <th align={align} className={`p-2 ${cellStyles}`}>
+                {title}
+            </th>
+        );
+    }
+
+    const buttonStyles = clsx(
+        'group inline-flex items-center space-x-0.5 p-2 font-medium hover:text-blue-800 transition-colors',
+        align === 'right' && 'flex-row-reverse',
+    );
+
+    const iconStyles = clsx(
+        'h-4 w-4 -ml-1 text-gray-500 group-hover:text-blue-800 transition',
+        !isCurrentSort && 'opacity-0 group-hover:opacity-100',
+    );
+
+    let Icon = ChevronUpIcon;
+    if ((isCurrentSort && currentSortDirection === 'descending') || (!isCurrentSort && defaultSortDirection === 'descending')) {
+        Icon = ChevronDownIcon;
+    }
+
+    return (
+        <th align={align} className={cellStyles}>
+            <button
+                className={buttonStyles}
+                onClick={onSort}
+                type="button"
+            >
+                <span>
+                    {title}
+                </span>
+                <Icon className={iconStyles} />
+            </button>
+        </th>
+    );
+};
+
+const DataTable = (props: DataTableProps): JSX.Element => {
+    const {
+        children,
+        headings = [],
+        initialSortColumnIndex,
+        initialSortDirection = 'ascending',
+        onSort,
+    } = props;
+
+    const [sortDirection, setSortDirection] = React.useState(initialSortDirection);
+    const [sortIndex, setSortIndex] = React.useState(initialSortColumnIndex);
+
+    const handleSort = (index: number) => {
+        let newSortDirection = headings[index]?.defaultSortDirection || 'ascending';
+        if (index === sortIndex) {
+            newSortDirection = sortDirection === 'ascending' ? 'descending' : 'ascending';
+        }
+
+        setSortIndex(index);
+        setSortDirection(newSortDirection);
+
+        if (onSort) {
+            onSort(index, newSortDirection);
+        }
+    };
+
+    return (
+        <div className="relative overflow-hidden">
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead>
+                        <tr>
+                            {headings.map((heading, index) => (
+                                <HeadingCell
+                                    {...heading}
+                                    key={index}
+                                    currentSortDirection={sortDirection}
+                                    isCurrentSort={index === sortIndex}
+                                    onSort={() => handleSort(index)}
+                                />
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                        {children}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const Row = ({ children }: RowProps): JSX.Element => (
-    <tr className="bg-white hover:bg-gray-50 transition-colors">
+    <tr className="hover:bg-gray-50 transition-colors">
         {children}
     </tr>
 );

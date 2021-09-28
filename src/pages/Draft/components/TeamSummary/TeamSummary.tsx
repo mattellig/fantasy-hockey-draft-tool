@@ -113,12 +113,13 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
     }, [draftPicks, settings, team]);
 
     return (
-        <section className="h-3/5 overflow-y-auto px-4 md:px-6 py-6 border-b">
+        <section className="h-3/5 overflow-y-auto p-4 border-b">
             <h2 className="mb-4 text-lg font-medium text-gray-800">
                 Team summary
             </h2>
             <div className="mb-2">
                 <Listbox
+                    hiddenLabel
                     label="Team"
                     onChange={setTeam}
                     optionTransform={(team) => team.name}

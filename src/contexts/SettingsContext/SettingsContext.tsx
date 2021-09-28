@@ -56,11 +56,13 @@ export interface SettingsState {
     teams: Team[];
 }
 
-type SettingsAndDispatch = [SettingsState, React.Dispatch<React.SetStateAction<SettingsState>>];
+type SettingsAndUpdater = [SettingsState, (newSettings: SettingsState) => void];
 
 interface SettingsProviderProps {
     children?: React.ReactNode;
 }
+
+const SettingsContext = React.createContext<SettingsAndUpdater | undefined>(undefined);
 
 export const myTeamId = 0;
 
@@ -115,19 +117,35 @@ const defaultSettings: SettingsState = {
     ],
 };
 
-const SettingsContext = React.createContext<SettingsAndDispatch | undefined>(undefined);
+const storageKey = 'fhdt-settings';
+
+const getDefaultSettings = () => {
+    const storedSettings = localStorage.getItem(storageKey);
+    if (storedSettings) {
+        const parsedSettings: SettingsState = JSON.parse(storedSettings);
+
+        return { ...defaultSettings, ...parsedSettings };
+    }
+
+    return defaultSettings;
+};
 
 const SettingsProvider = ({ children }: SettingsProviderProps): JSX.Element => {
-    const [settings, setSettings] = React.useState(defaultSettings);
+    const [settings, setSettings] = React.useState(getDefaultSettings());
+
+    const handleUpdate = (newSettings: SettingsState) => {
+        localStorage.setItem(storageKey, JSON.stringify(newSettings));
+        setSettings(newSettings);
+    };
 
     return (
-        <SettingsContext.Provider value={[settings, setSettings]}>
+        <SettingsContext.Provider value={[settings, handleUpdate]}>
             {children}
         </SettingsContext.Provider>
     );
 };
 
-const useSettings = (): SettingsAndDispatch => {
+const useSettings = (): SettingsAndUpdater => {
     const context = React.useContext(SettingsContext);
 
     if (context === undefined) {

@@ -134,7 +134,7 @@ const Draft = (): JSX.Element => {
                             />
                         </section>
                     </div>
-                    <section className="col-span-2 order-1 h-full px-4 md:px-6 py-6 overflow-y-auto">
+                    <section className="col-span-2 order-1 h-full p-4 overflow-y-auto">
                         {draftStarted ? (
                             <DraftList
                                 currentPickNumber={currentPickNumber}

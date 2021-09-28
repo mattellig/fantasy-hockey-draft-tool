@@ -13,8 +13,8 @@ const adpStrictness = 0.85;
 const miniTableHeadings: DataTableHeading[] = [
     { title: 'Name' },
     { title: 'Pos', align: 'center' },
-    { title: 'FP', align: 'right', defaultSortDirection: 'descending', sortable: true },
-    { title: 'VORP', align: 'right', defaultSortDirection: 'descending', sortable: true },
+    { title: 'FP', align: 'right' },
+    { title: 'VORP', align: 'right' },
 ];
 
 const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickPredictorProps): JSX.Element => {
@@ -27,8 +27,8 @@ const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickP
     }, [allPlayers, draftedPlayers]);
 
     return (
-        <section className="h-2/5 overflow-y-auto py-6">
-            <div className="px-4 md:px-6 mb-4">
+        <section className="h-2/5 overflow-y-auto py-4">
+            <div className="px-4 mb-4">
                 <h2 className="text-lg font-medium text-gray-800">
                     Expected picks
                 </h2>

@@ -5,6 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
 
 interface ListboxProps<T> {
+    hiddenLabel?: boolean;
     label: string;
     onChange?: (newValue: T) => void;
     options: T[];
@@ -14,6 +15,7 @@ interface ListboxProps<T> {
 
 const Listbox = <T extends unknown>(props: ListboxProps<T>): JSX.Element => {
     const {
+        hiddenLabel = false,
         label,
         onChange,
         options,
@@ -33,7 +35,7 @@ const Listbox = <T extends unknown>(props: ListboxProps<T>): JSX.Element => {
 
     return (
         <HeadlessListbox onChange={handleChange} value={value}>
-            <HeadlessListbox.Label className="block mb-1 text-sm font-medium text-gray-700">
+            <HeadlessListbox.Label className={hiddenLabel ? 'sr-only' : 'block mb-1 text-sm font-medium text-gray-700'}>
                 {label}
             </HeadlessListbox.Label>
             <div className="relative">

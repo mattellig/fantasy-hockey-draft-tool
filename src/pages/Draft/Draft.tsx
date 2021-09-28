@@ -76,63 +76,65 @@ const Draft = (): JSX.Element => {
 
     return (
         <>
-            <div className="grid grid-cols-12 gap-x-5 md:gap-x-8 gap-y-6 sm:px-5 md:px-8 py-6">
-                <div className="col-span-8 order-2">
-                    <div className="mb-6">
-                        <h1 className="mb-2 text-2xl font-medium text-gray-800">
-                            Draft
-                        </h1>
-                        <div className="flex items-center space-x-6">
-                            {!draftStarted ? (
-                                <>
+            <div className="h-screen -mt-12 pt-12">
+                <div className="grid grid-cols-12 h-full overflow-hidden">
+                    <div className="col-span-8 order-2 h-full px-4 md:px-6 py-6 overflow-y-auto">
+                        <div className="mb-6">
+                            <h1 className="mb-2 text-2xl font-medium text-gray-800">
+                                Draft
+                            </h1>
+                            <div className="flex items-center space-x-6">
+                                {!draftStarted ? (
+                                    <>
+                                        <Button
+                                            icon={<ClockIcon />}
+                                            link
+                                            onClick={() => setDraftStarted(true)}
+                                        >
+                                            Start the draft
+                                        </Button>
+                                        <Link
+                                            to="/customize"
+                                            className={`flex items-center ${getLinkStyles(true)} text-sm font-medium`}
+                                        >
+                                            <AdjustmentsIcon className="h-4 w-4 -ml-px mr-1.5" />
+                                            Customize
+                                        </Link>
+                                    </>
+                                ) : (
                                     <Button
-                                        icon={<ClockIcon />}
+                                        icon={<RefreshIcon />}
                                         link
-                                        onClick={() => setDraftStarted(true)}
+                                        onClick={() => setShowResetModal(true)}
                                     >
-                                        Start the draft
+                                        Reset
                                     </Button>
-                                    <Link
-                                        to="/customize"
-                                        className={`flex items-center ${getLinkStyles(true)} text-sm font-medium`}
-                                    >
-                                        <AdjustmentsIcon className="h-4 w-4 -ml-px mr-1.5" />
-                                        Customize
-                                    </Link>
-                                </>
-                            ) : (
-                                <Button
-                                    icon={<RefreshIcon />}
-                                    link
-                                    onClick={() => setShowResetModal(true)}
-                                >
-                                    Reset
-                                </Button>
-                            )}
+                                )}
+                            </div>
                         </div>
+                        <section>
+                            <PlayersTable
+                                canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
+                                draftPicks={draftPicks}
+                                onDraftPlayer={handleDraftPlayer}
+                            />
+                        </section>
                     </div>
-                    <section>
-                        <PlayersTable
-                            canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
+                    <section className="col-span-2 order-1 h-full px-4 md:px-6 py-6 overflow-y-auto">
+                        <DraftList
+                            currentPickNumber={currentPickNumber}
                             draftPicks={draftPicks}
-                            onDraftPlayer={handleDraftPlayer}
+                            draftStarted={draftStarted}
+                            numberOfTeams={settings.teams.length}
+                        />
+                    </section>
+                    <section className="col-span-2 order-3 h-full px-4 md:px-6 py-6 overflow-y-auto">
+                        <MyTeam
+                            draftPicks={draftPicks}
+                            draftStarted={draftStarted}
                         />
                     </section>
                 </div>
-                <section className="col-span-2 order-1">
-                    <DraftList
-                        currentPickNumber={currentPickNumber}
-                        draftPicks={draftPicks}
-                        draftStarted={draftStarted}
-                        numberOfTeams={settings.teams.length}
-                    />
-                </section>
-                <section className="col-span-2 order-3">
-                    <MyTeam
-                        draftPicks={draftPicks}
-                        draftStarted={draftStarted}
-                    />
-                </section>
             </div>
             {draftStarted ? (
                 <ResetModal

@@ -54,6 +54,7 @@ const Draft = (): JSX.Element => {
     const [currentPickNumber, setCurrentPickNumber] = React.useState(1);
     const [draftPicks, setDraftPicks] = React.useState(createDraftOrder(settings));
     const [draftStarted, setDraftStarted] = React.useState(false);
+    const [flaggedPlayers, setFlaggedPlayers] = React.useState<PlayerData[]>([]);
     const [showResetModal, setShowResetModal] = React.useState(false);
 
     const { data, loading } = usePlayerData();
@@ -83,6 +84,19 @@ const Draft = (): JSX.Element => {
 
         setDraftPicks(draftPicksCopy);
         setCurrentPickNumber(currentPickNumber + 1);
+    };
+
+    const handleFlagPlayer = (player: PlayerData) => {
+        const flaggedPlayersCopy = [...flaggedPlayers];
+
+        const index = flaggedPlayersCopy.indexOf(player);
+        if (index >= 0) {
+            flaggedPlayersCopy.splice(index, 1);
+        } else {
+            flaggedPlayersCopy.push(player);
+        }
+
+        setFlaggedPlayers(flaggedPlayersCopy);
     };
 
     return (
@@ -133,8 +147,10 @@ const Draft = (): JSX.Element => {
                                                 canDraftPlayers={draftStarted && currentPickNumber <= draftPicks.length}
                                                 data={data}
                                                 draftedPlayers={draftedPlayers}
+                                                flaggedPlayers={flaggedPlayers}
                                                 loading={loading}
                                                 onDraftPlayer={handleDraftPlayer}
+                                                onFlagPlayer={handleFlagPlayer}
                                             />
                                         ),
                                         title: 'Players',

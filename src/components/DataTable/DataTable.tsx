@@ -23,6 +23,7 @@ interface DataTableProps {
 
 interface RowProps {
     children?: React.ReactNode;
+    selected?: boolean;
 }
 
 interface HeadingCellProps extends DataTableHeading {
@@ -143,8 +144,11 @@ const DataTable = (props: DataTableProps): JSX.Element => {
     );
 };
 
-const Row = ({ children }: RowProps): JSX.Element => (
-    <tr className="hover:bg-gray-50 transition-colors">
+const Row = ({ children, selected }: RowProps): JSX.Element => (
+    <tr className={clsx(
+        selected ? 'bg-blue-50/50 hover:bg-blue-50/100' : 'hover:bg-gray-50',
+        'transition-colors',
+    )}>
         {children}
     </tr>
 );

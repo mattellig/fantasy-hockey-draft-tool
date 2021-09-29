@@ -1,3 +1,6 @@
+import { StarIcon } from '@heroicons/react/outline';
+import { StarIcon as FilledStarIcon } from '@heroicons/react/solid';
+import clsx from 'clsx';
 import * as React from 'react';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
@@ -13,12 +16,15 @@ interface PlayersTableProps {
     canDraftPlayers: boolean;
     data: PlayerData[] | undefined;
     draftedPlayers: PlayerData[];
+    flaggedPlayers: PlayerData[];
     loading: boolean;
     onDraftPlayer: (player: PlayerData) => void;
+    onFlagPlayer: (player: PlayerData) => void;
 }
 
 const fixedHeadings: DataTableHeading[] = [
     { title: 'Rank', align: 'right', sortable: true },
+    { title: '' },
     { title: 'Name' },
     { title: 'Team', align: 'center' },
     { title: 'Pos', align: 'center' },
@@ -61,14 +67,16 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
         canDraftPlayers,
         data,
         draftedPlayers,
+        flaggedPlayers,
         loading,
         onDraftPlayer,
+        onFlagPlayer,
     } = props;
 
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
-    const [sort, setSort] = React.useState({ index: 6, direction: 'descending' });
+    const [sort, setSort] = React.useState({ index: 7, direction: 'descending' });
 
     const [settings] = useSettings();
 
@@ -225,7 +233,7 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
             </div>
             <DataTable
                 headings={tableHeadings}
-                initialSortColumnIndex={6}
+                initialSortColumnIndex={7}
                 initialSortDirection="descending"
                 onSort={(index, direction) => setSort({ index, direction })}
             >
@@ -242,53 +250,77 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
                             </div>
                         </DataTable.Cell>
                     </DataTable.Row>
-                ) : filteredData?.length ? filteredData.map((row) => (
-                    <DataTable.Row key={`${row.name}-${row.position}`}>
-                        <DataTable.Cell align="right" collapsing>
-                            {row.rank}
-                        </DataTable.Cell>
-                        <DataTable.Cell>
-                            {row.name}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="center">
-                            {row.team}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="center">
-                            {row.position}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="center" collapsing flush>
-                            <div className="p-0.5">
-                                <Button
-                                    disabled={!canDraftPlayers || draftedPlayers.includes(row)}
-                                    link
-                                    onClick={() => onDraftPlayer(row)}
-                                >
-                                    Draft
-                                </Button>
-                            </div>
-                        </DataTable.Cell>
-                        <DataTable.Cell align="right">
-                            {row.fantasyPoints.toFixed(1)}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="right">
-                            {row.valueOverReplacement.toFixed(1)}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="right">
-                            {row.averageDraftPosition?.toFixed(1)}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="right">
-                            {row.difference?.toFixed(1)}
-                        </DataTable.Cell>
-                        <DataTable.Cell align="right">
-                            {row.gamesPlayed}
-                        </DataTable.Cell>
-                        {scoringSettingEntries.map(([key, value]) => value ? (
-                            <DataTable.Cell key={key} align="right">
-                                {formatStat(row.totals[key as keyof PlayerStats], key as keyof ScoringSettings)}
+                ) : filteredData?.length ? filteredData.map((row) => {
+                    const playerIsFlagged = flaggedPlayers.includes(row);
+
+                    return (
+                        <DataTable.Row
+                            key={`${row.name}-${row.position}`}
+                            selected={playerIsFlagged}
+                        >
+                            <DataTable.Cell align="right" collapsing>
+                                {row.rank}
                             </DataTable.Cell>
-                        ) : null)}
-                    </DataTable.Row>
-                )) : (
+                            <DataTable.Cell collapsing>
+                                <button
+                                    className={clsx(
+                                        'inline-flex items-center justify-center p-0.5 align-middle transition-colors',
+                                        playerIsFlagged ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600',
+                                    )}
+                                    onClick={() => onFlagPlayer(row)}
+                                    type="button"
+                                    aria-label={playerIsFlagged ? 'Unflag player' : 'Flag player'}
+                                >
+                                    {playerIsFlagged ? (
+                                        <FilledStarIcon className="h-4 w-4" />
+                                    ) : (
+                                        <StarIcon className="h-4 w-4" />
+                                    )}
+                                </button>
+                            </DataTable.Cell>
+                            <DataTable.Cell>
+                                {row.name}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="center">
+                                {row.team}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="center">
+                                {row.position}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="center" collapsing flush>
+                                <div className="p-0.5">
+                                    <Button
+                                        disabled={!canDraftPlayers || draftedPlayers.includes(row)}
+                                        link
+                                        onClick={() => onDraftPlayer(row)}
+                                    >
+                                        Draft
+                                    </Button>
+                                </div>
+                            </DataTable.Cell>
+                            <DataTable.Cell align="right">
+                                {row.fantasyPoints.toFixed(1)}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="right">
+                                {row.valueOverReplacement.toFixed(1)}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="right">
+                                {row.averageDraftPosition?.toFixed(1)}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="right">
+                                {row.difference?.toFixed(1)}
+                            </DataTable.Cell>
+                            <DataTable.Cell align="right">
+                                {row.gamesPlayed}
+                            </DataTable.Cell>
+                            {scoringSettingEntries.map(([key, value]) => value ? (
+                                <DataTable.Cell key={key} align="right">
+                                    {formatStat(row.totals[key as keyof PlayerStats], key as keyof ScoringSettings)}
+                                </DataTable.Cell>
+                            ) : null)}
+                        </DataTable.Row>
+                    );
+                }) : (
                     <DataTable.Row>
                         <DataTable.Cell align="center" colSpan={tableHeadings.length}>
                             <p className="text-sm text-gray-500">

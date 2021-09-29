@@ -10,6 +10,7 @@ interface PickPredictorProps {
 }
 
 const miniTableHeadings: DataTableHeading[] = [
+    { title: 'Rank', align: 'right' },
     { title: 'Name' },
     { title: 'Pos', align: 'center' },
     { title: 'FP', align: 'right' },
@@ -27,17 +28,17 @@ const PickPredictor = ({ allPlayers, draftedPlayers }: PickPredictorProps): JSX.
             .filter((pd) => !draftedPlayers.includes(pd))
             .sort((a, b) => sortByStatistic(a.averageDraftPosition, b.averageDraftPosition, true))
             .slice(0, numberOfPicksToShow)
-            .sort((a, b) => b.valueOverReplacement - a.valueOverReplacement);
+            .sort((a, b) => a.rank - b.rank);
     }, [allPlayers, draftedPlayers, settings]);
 
     return (
         <section className="h-2/5 overflow-y-auto py-4">
             <div className="px-4 mb-4">
                 <h2 className="text-lg font-medium text-gray-800">
-                    Expected picks
+                    Highest ranked players
                 </h2>
                 <p className="text-xs text-gray-500 italic">
-                    in the next {numberOfPicksToShow} turns, ordered by VORP
+                    in the next {numberOfPicksToShow} turns
                 </p>
             </div>
             <DataTable
@@ -45,22 +46,25 @@ const PickPredictor = ({ allPlayers, draftedPlayers }: PickPredictorProps): JSX.
                 initialSortColumnIndex={3}
                 initialSortDirection="descending"
             >
-                {expectedPicks.map((pd, index) => (
-                    <DataTable.Row key={`${pd.name}-${index}`}>
+                {expectedPicks.map((row, index) => (
+                    <DataTable.Row key={`${row.name}-${index}`}>
+                        <DataTable.Cell align="right" collapsing>
+                            {row.rank}
+                        </DataTable.Cell>
                         <DataTable.Cell>
-                            {pd.name}
+                            {row.name}
                         </DataTable.Cell>
                         <DataTable.Cell align="center">
-                            {pd.position}
+                            {row.position}
                         </DataTable.Cell>
                         <DataTable.Cell align="right">
-                            {pd.fantasyPoints.toFixed(1)}
+                            {row.fantasyPoints.toFixed(1)}
                         </DataTable.Cell>
                         <DataTable.Cell align="right">
-                            {pd.valueOverReplacement.toFixed(1)}
+                            {row.valueOverReplacement.toFixed(1)}
                         </DataTable.Cell>
                         <DataTable.Cell align="right">
-                            {pd.averageDraftPosition?.toFixed(1)}
+                            {row.averageDraftPosition?.toFixed(1)}
                         </DataTable.Cell>
                     </DataTable.Row>
                 ))}

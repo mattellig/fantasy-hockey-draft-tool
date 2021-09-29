@@ -1,7 +1,8 @@
-import { AdjustmentsIcon, ClockIcon, RefreshIcon } from '@heroicons/react/outline';
+import { AdjustmentsIcon, ClockIcon, RefreshIcon, XIcon } from '@heroicons/react/outline';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
+import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { getLinkStyles } from '../../components/Link/Link';
 import Tabs from '../../components/Tabs/Tabs';
 import { toast } from '../../components/Toast/Toast';
@@ -10,7 +11,6 @@ import usePlayerData, { PlayerData } from '../../hooks/usePlayerData/usePlayerDa
 import DraftList from './components/DraftList/DraftList';
 import PickPredictor from './components/PickPredictor/PickPredictor';
 import PlayersTable from './components/PlayersTable/PlayersTable';
-import ResetModal from './components/ResetModal/ResetModal';
 import Standings from './components/Standings/Standings';
 import TeamSummary from './components/TeamSummary/TeamSummary';
 
@@ -56,6 +56,7 @@ const Draft = (): JSX.Element => {
     const [draftStarted, setDraftStarted] = React.useState(false);
     const [flaggedPlayers, setFlaggedPlayers] = React.useState<PlayerData[]>([]);
     const [showResetModal, setShowResetModal] = React.useState(false);
+    const [showStopModal, setShowStopModal] = React.useState(false);
 
     const { data, loading } = usePlayerData();
 
@@ -65,9 +66,12 @@ const Draft = (): JSX.Element => {
             .map((dp) => dp.playerSelected) as PlayerData[];
     }, [draftPicks]);
 
-    const handleCloseResetModal = (resetConfirmed: boolean) => {
-        if (resetConfirmed) {
-            setDraftStarted(false);
+    const handleCloseConfirmationModal = (confirmed: boolean, restart: boolean) => {
+        if (confirmed) {
+            if (!restart) {
+                setDraftStarted(false);
+            }
+
             setCurrentPickNumber(1);
             setDraftPicks(createDraftOrder(settings));
 
@@ -75,6 +79,7 @@ const Draft = (): JSX.Element => {
         }
 
         setShowResetModal(false);
+        setShowStopModal(false);
     };
 
     const handleDraftPlayer = (player: PlayerData) => {
@@ -128,13 +133,22 @@ const Draft = (): JSX.Element => {
                                         </Link>
                                     </>
                                 ) : (
-                                    <Button
-                                        icon={<RefreshIcon />}
-                                        link
-                                        onClick={() => setShowResetModal(true)}
-                                    >
-                                        Reset
-                                    </Button>
+                                    <>
+                                        <Button
+                                            icon={<RefreshIcon />}
+                                            link
+                                            onClick={() => setShowResetModal(true)}
+                                        >
+                                            Restart
+                                        </Button>
+                                        <Button
+                                            icon={<XIcon />}
+                                            link
+                                            onClick={() => setShowStopModal(true)}
+                                        >
+                                            Stop draft
+                                        </Button>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -184,12 +198,22 @@ const Draft = (): JSX.Element => {
                     </div>
                 </div>
             </div>
-            {draftStarted ? (
-                <ResetModal
-                    onClose={handleCloseResetModal}
-                    open={showResetModal}
-                />
-            ) : null}
+            <ConfirmationModal
+                confirmButtonText="Restart"
+                destructive
+                message="Are you sure you want to start over? The draft order and all current picks will be reset."
+                onClose={(confirmed) => handleCloseConfirmationModal(confirmed, true)}
+                open={showResetModal}
+                title="Restart draft?"
+            />
+            <ConfirmationModal
+                confirmButtonText="Stop"
+                destructive
+                message="Are you sure you want to stop? The draft order and all current picks will be reset."
+                onClose={(confirmed) => handleCloseConfirmationModal(confirmed, false)}
+                open={showStopModal}
+                title="Stop draft?"
+            />
         </>
     );
 };

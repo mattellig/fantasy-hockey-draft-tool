@@ -3,6 +3,7 @@ import useControlledState from '../../hooks/useControlledState/useControlledStat
 
 interface SelectProps {
     disabled?: boolean;
+    hiddenLabel?: boolean;
     id: string;
     label: string;
     onChange?: (value: string, id: string) => void;
@@ -14,6 +15,7 @@ interface SelectProps {
 const Select = (props: SelectProps): JSX.Element => {
     const {
         disabled = false,
+        hiddenLabel = false,
         id,
         label,
         onChange,
@@ -37,7 +39,7 @@ const Select = (props: SelectProps): JSX.Element => {
     return (
         <div>
             <label
-                className="block mb-1 text-sm font-medium text-gray-700"
+                className={hiddenLabel ? 'sr-only' : 'block mb-1 text-sm font-medium text-gray-700'}
                 htmlFor={id}
             >
                 {label}

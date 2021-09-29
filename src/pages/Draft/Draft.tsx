@@ -103,8 +103,8 @@ const Draft = (): JSX.Element => {
         <>
             <div className="h-screen -mt-12 pt-12">
                 <div className="grid grid-cols-12 h-full overflow-hidden">
-                    <div className="col-span-8 order-2 h-full py-6 overflow-y-auto">
-                        <div className="px-4 md:px-6 mb-6">
+                    <div className="col-span-8 order-2 h-full py-5 overflow-y-auto">
+                        <div className="px-4 md:px-6 mb-5">
                             <h1 className="mb-2 text-2xl font-medium text-gray-800">
                                 Draft
                             </h1>
@@ -144,8 +144,8 @@ const Draft = (): JSX.Element => {
                                     {
                                         content: (
                                             <PlayersTable
+                                                allPlayers={data}
                                                 canDraftPlayers={draftStarted && currentPickNumber <= draftPicks.length}
-                                                data={data}
                                                 draftedPlayers={draftedPlayers}
                                                 flaggedPlayers={flaggedPlayers}
                                                 loading={loading}
@@ -163,7 +163,7 @@ const Draft = (): JSX.Element => {
                             />
                         </section>
                     </div>
-                    <section className="col-span-2 order-1 h-full p-4 overflow-y-auto">
+                    <section className="col-span-2 order-1 h-full overflow-y-auto">
                         {draftStarted ? (
                             <DraftList
                                 currentPickNumber={currentPickNumber}

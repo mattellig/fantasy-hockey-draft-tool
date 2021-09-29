@@ -146,7 +146,7 @@ const DataTable = (props: DataTableProps): JSX.Element => {
 
 const Row = ({ children, selected }: RowProps): JSX.Element => (
     <tr className={clsx(
-        selected ? 'bg-blue-50/50 hover:bg-blue-50/100' : 'hover:bg-gray-50',
+        selected ? 'bg-blue-50/70 hover:bg-blue-100/50' : 'hover:bg-gray-50',
         'transition-colors',
     )}>
         {children}

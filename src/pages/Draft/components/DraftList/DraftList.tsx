@@ -12,8 +12,8 @@ interface DraftListProps {
 const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Element | null => {
     const [settings] = useSettings();
 
-    const turnsUntilNextPick = draftPicks.slice(currentPickNumber).findIndex((dp) => dp.team.id === myTeamId) + 1;
-    const isCurrentPick = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId) === 0;
+    const turnsUntilNextPick = (draftPicks.findIndex((dp, i) => i >= currentPickNumber && dp.team.id === myTeamId)) - currentPickNumber + 1;
+    const isCurrentPick = (draftPicks.findIndex((dp, i) => i >= (currentPickNumber - 1) && dp.team.id === myTeamId)) - currentPickNumber + 1 === 0;
 
     const numberOfTeams = settings.teams.length;
     const currentRound = Math.floor((currentPickNumber - 1) / numberOfTeams) + 1;
@@ -27,7 +27,7 @@ const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Eleme
     }
 
     return (
-        <>
+        <div className="p-4 border-r">
             <h2 className="sr-only">
                 Draft list
             </h2>
@@ -100,7 +100,7 @@ const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Eleme
                     </React.Fragment>
                 ))}
             </ol>
-        </>
+        </div>
     );
 };
 

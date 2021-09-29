@@ -29,10 +29,10 @@ const PickPredictor = ({ allPlayers, draftedPlayers }: PickPredictorProps): JSX.
             .sort((a, b) => sortByStatistic(a.averageDraftPosition, b.averageDraftPosition, true))
             .slice(0, numberOfPicksToShow)
             .sort((a, b) => a.rank - b.rank);
-    }, [allPlayers, draftedPlayers, settings]);
+    }, [draftedPlayers]);
 
     return (
-        <section className="h-2/5 overflow-y-auto py-4">
+        <section className="h-2/5 overflow-y-auto py-4 border-l">
             <div className="px-4 mb-4">
                 <h2 className="text-lg font-medium text-gray-800">
                     Highest ranked players

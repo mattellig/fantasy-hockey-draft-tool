@@ -308,7 +308,7 @@ const usePlayerData = (): PlayerDataState => {
             .sort(sortPlayerData);
 
         const defense = dataWithFantasyPoints
-            .filter((pd) => pd.position?.toLowerCase() === 'd')
+            .filter((pd) => pd.position?.toLowerCase().includes('d'))
             .sort(sortPlayerData);
 
         const goalies = dataWithFantasyPoints

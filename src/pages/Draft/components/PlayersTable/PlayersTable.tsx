@@ -1,5 +1,5 @@
 import { StarIcon } from '@heroicons/react/outline';
-import { StarIcon as FilledStarIcon } from '@heroicons/react/solid';
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon as FilledStarIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import * as React from 'react';
 import Button from '../../../../components/Button/Button';
@@ -13,8 +13,8 @@ import { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlay
 import sortByStatistic from '../../../../utils/sortByStatistic/sortByStatistic';
 
 interface PlayersTableProps {
+    allPlayers: PlayerData[] | undefined;
     canDraftPlayers: boolean;
-    data: PlayerData[] | undefined;
     draftedPlayers: PlayerData[];
     flaggedPlayers: PlayerData[];
     loading: boolean;
@@ -35,6 +35,8 @@ const fixedHeadings: DataTableHeading[] = [
     { title: 'Diff.', align: 'right', defaultSortDirection: 'descending', sortable: true },
     { title: 'GP', align: 'right', defaultSortDirection: 'descending', sortable: true },
 ];
+
+const pageSize = 25;
 
 const positionFilterOptions = [
     'All positions',
@@ -64,8 +66,8 @@ const formatStat = (value: number | null, key: keyof ScoringSettings) => {
 
 const PlayersTable = (props: PlayersTableProps): JSX.Element => {
     const {
+        allPlayers,
         canDraftPlayers,
-        data,
         draftedPlayers,
         flaggedPlayers,
         loading,
@@ -73,6 +75,7 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
         onFlagPlayer,
     } = props;
 
+    const [page, setPage] = React.useState(0);
     const [playerSearch, setPlayerSearch] = React.useState('');
     const [positionFilter, setPositionFilter] = React.useState('All positions');
     const [showDrafted, setShowDrafted] = React.useState(false);
@@ -80,7 +83,7 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
 
     const [settings] = useSettings();
 
-    const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
+    const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), []);
     const tableHeadings = React.useMemo(() => {
         const headings = [...fixedHeadings];
 
@@ -96,10 +99,10 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
         }
 
         return headings;
-    }, [scoringSettingEntries]);
+    }, []);
 
     const sortedData = React.useMemo(() => {
-        if (!data) return undefined;
+        if (!allPlayers) return undefined;
 
         let compareFn;
 
@@ -158,8 +161,8 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
             }
         }
 
-        return [...data].sort(compareFn);
-    }, [data, sort, tableHeadings]);
+        return [...allPlayers].sort(compareFn);
+    }, [allPlayers, sort]);
 
     const filteredData = React.useMemo(() => {
         if (!sortedData) return undefined;
@@ -201,19 +204,22 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
             <h2 className="sr-only">
                 Players
             </h2>
-            <div className="px-4 md:px-6 mb-4">
+            <div className="px-1 mb-4">
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-3">
                         <Input
+                            hiddenLabel
                             id="search-players-input"
                             label="Find player by name"
                             onChange={(value) => setPlayerSearch(value)}
+                            placeholder="Find player by name"
                             type="search"
                             value={playerSearch}
                         />
                     </div>
                     <div className="col-span-2">
                         <Select
+                            hiddenLabel
                             id="position-select"
                             label="Position"
                             onChange={(value) => setPositionFilter(value)}
@@ -250,77 +256,79 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
                             </div>
                         </DataTable.Cell>
                     </DataTable.Row>
-                ) : filteredData?.length ? filteredData.map((row) => {
-                    const playerIsFlagged = flaggedPlayers.includes(row);
+                ) : filteredData?.length ? filteredData
+                    .slice(page * pageSize, (page + 1) * pageSize)
+                    .map((row) => {
+                        const playerIsFlagged = flaggedPlayers.includes(row);
 
-                    return (
-                        <DataTable.Row
-                            key={`${row.name}-${row.position}`}
-                            selected={playerIsFlagged}
-                        >
-                            <DataTable.Cell align="right" collapsing>
-                                {row.rank}
-                            </DataTable.Cell>
-                            <DataTable.Cell collapsing>
-                                <button
-                                    className={clsx(
-                                        'inline-flex items-center justify-center p-0.5 align-middle transition-colors',
-                                        playerIsFlagged ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600',
-                                    )}
-                                    onClick={() => onFlagPlayer(row)}
-                                    type="button"
-                                    aria-label={playerIsFlagged ? 'Unflag player' : 'Flag player'}
-                                >
-                                    {playerIsFlagged ? (
-                                        <FilledStarIcon className="h-4 w-4" />
-                                    ) : (
-                                        <StarIcon className="h-4 w-4" />
-                                    )}
-                                </button>
-                            </DataTable.Cell>
-                            <DataTable.Cell>
-                                {row.name}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="center">
-                                {row.team}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="center">
-                                {row.position}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="center" collapsing flush>
-                                <div className="p-0.5">
-                                    <Button
-                                        disabled={!canDraftPlayers || draftedPlayers.includes(row)}
-                                        link
-                                        onClick={() => onDraftPlayer(row)}
-                                    >
-                                        Draft
-                                    </Button>
-                                </div>
-                            </DataTable.Cell>
-                            <DataTable.Cell align="right">
-                                {row.fantasyPoints.toFixed(1)}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="right">
-                                {row.valueOverReplacement.toFixed(1)}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="right">
-                                {row.averageDraftPosition?.toFixed(1)}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="right">
-                                {row.difference?.toFixed(1)}
-                            </DataTable.Cell>
-                            <DataTable.Cell align="right">
-                                {row.gamesPlayed}
-                            </DataTable.Cell>
-                            {scoringSettingEntries.map(([key, value]) => value ? (
-                                <DataTable.Cell key={key} align="right">
-                                    {formatStat(row.totals[key as keyof PlayerStats], key as keyof ScoringSettings)}
+                        return (
+                            <DataTable.Row
+                                key={`${row.name}-${row.position}`}
+                                selected={playerIsFlagged}
+                            >
+                                <DataTable.Cell align="right" collapsing>
+                                    {row.rank}
                                 </DataTable.Cell>
-                            ) : null)}
-                        </DataTable.Row>
-                    );
-                }) : (
+                                <DataTable.Cell collapsing>
+                                    <button
+                                        className={clsx(
+                                            'inline-flex items-center justify-center p-0.5 align-middle transition-colors',
+                                            playerIsFlagged ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600',
+                                        )}
+                                        onClick={() => onFlagPlayer(row)}
+                                        type="button"
+                                        aria-label={playerIsFlagged ? 'Unflag player' : 'Flag player'}
+                                    >
+                                        {playerIsFlagged ? (
+                                            <FilledStarIcon className="h-4 w-4" />
+                                        ) : (
+                                            <StarIcon className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                </DataTable.Cell>
+                                <DataTable.Cell>
+                                    {row.name}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="center">
+                                    {row.team}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="center">
+                                    {row.position}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="center" collapsing flush>
+                                    <div className="p-0.5">
+                                        <Button
+                                            disabled={!canDraftPlayers || draftedPlayers.includes(row)}
+                                            link
+                                            onClick={() => onDraftPlayer(row)}
+                                        >
+                                            Draft
+                                        </Button>
+                                    </div>
+                                </DataTable.Cell>
+                                <DataTable.Cell align="right">
+                                    {row.fantasyPoints.toFixed(1)}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="right">
+                                    {row.valueOverReplacement.toFixed(1)}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="right">
+                                    {row.averageDraftPosition?.toFixed(1)}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="right">
+                                    {row.difference?.toFixed(1)}
+                                </DataTable.Cell>
+                                <DataTable.Cell align="right">
+                                    {row.gamesPlayed}
+                                </DataTable.Cell>
+                                {scoringSettingEntries.map(([key, value]) => value ? (
+                                    <DataTable.Cell key={key} align="right">
+                                        {formatStat(row.totals[key as keyof PlayerStats], key as keyof ScoringSettings)}
+                                    </DataTable.Cell>
+                                ) : null)}
+                            </DataTable.Row>
+                        );
+                    }) : (
                     <DataTable.Row>
                         <DataTable.Cell align="center" colSpan={tableHeadings.length}>
                             <p className="text-sm text-gray-500">
@@ -330,6 +338,29 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
                     </DataTable.Row>
                 )}
             </DataTable>
+            {filteredData ? (
+                <div className="flex items-center justify-between px-4 md:px-6 pt-4 border-t">
+                    <div className="text-sm text-gray-500">
+                        Showing {page * pageSize + 1} - {(page + 1) * pageSize} of {filteredData.length} results
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            disabled={page === 0}
+                            icon={<ChevronLeftIcon />}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            disabled={(page + 1) * pageSize >= filteredData.length}
+                            icon={<ChevronRightIcon />}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            ) : null}
         </>
     );
 };

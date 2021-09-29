@@ -3,6 +3,7 @@ import useControlledState from '../../hooks/useControlledState/useControlledStat
 
 interface InputProps {
     id: string;
+    hiddenLabel?: boolean;
     label: string;
     max?: number;
     min?: number;
@@ -16,6 +17,7 @@ interface InputProps {
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref): JSX.Element => {
     const {
+        hiddenLabel = false,
         id,
         label,
         max,
@@ -43,7 +45,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref): JSX.E
     return (
         <div>
             <label
-                className="block mb-1 text-sm font-medium text-gray-700"
+                className={hiddenLabel ? 'sr-only' : 'block mb-1 text-sm font-medium text-gray-700'}
                 htmlFor={id}
             >
                 {label}

@@ -49,6 +49,7 @@ const Button = (props: ButtonProps): JSX.Element => {
     } = props;
 
     const styles = getButtonStyles(loading, link, destructive, primary);
+    const iconStyles = icon ? clsx('mr-1.5', !link && '-ml-1.5') : undefined;
 
     return (
         <button
@@ -58,11 +59,11 @@ const Button = (props: ButtonProps): JSX.Element => {
             className={styles}
         >
             {loading ? (
-                <div className="-ml-px mr-1.5">
+                <div className={iconStyles}>
                     <Spinner />
                 </div>
             ) : icon ? (
-                <div className="h-4 w-4 -ml-px mr-1.5">
+                <div className={`h-4 w-4 ${iconStyles}`}>
                     {icon}
                 </div>
             ) : null}

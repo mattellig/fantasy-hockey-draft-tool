@@ -18,7 +18,7 @@ const getPrimaryPosition = (position: string) => {
         return 'goalie';
     }
 
-    if (position === 'd') {
+    if (position.startsWith('d')) {
         return 'defense';
     }
 
@@ -77,7 +77,7 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
         return [...settings.teams].sort((a, b) => {
             return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
         });
-    }, [settings]);
+    }, []);
 
     const teamRoster = React.useMemo(() => {
         const roster: Record<keyof RosterSettings, PlayerData[]> = {
@@ -116,10 +116,10 @@ const TeamSummary = ({ draftPicks }: MyTeamProps): JSX.Element | null => {
         }
 
         return roster;
-    }, [draftPicks, settings, team]);
+    }, [draftPicks, team]);
 
     return (
-        <section className="h-3/5 overflow-y-auto p-4 border-b">
+        <section className="h-3/5 overflow-y-auto p-4 border-b border-l">
             <h2 className="mb-4 text-lg font-medium text-gray-800">
                 Team summary
             </h2>

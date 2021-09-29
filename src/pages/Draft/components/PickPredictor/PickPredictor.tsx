@@ -1,31 +1,34 @@
 import * as React from 'react';
 import DataTable, { DataTableHeading } from '../../../../components/DataTable/DataTable';
+import { useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import { PlayerData } from '../../../../hooks/usePlayerData/usePlayerData';
 import sortByStatistic from '../../../../utils/sortByStatistic/sortByStatistic';
 
 interface PickPredictorProps {
     allPlayers: PlayerData[];
     draftedPlayers: PlayerData[];
-    turnsUntilNextPick: number;
 }
-
-const adpStrictness = 0.85;
 
 const miniTableHeadings: DataTableHeading[] = [
     { title: 'Name' },
     { title: 'Pos', align: 'center' },
     { title: 'FP', align: 'right' },
     { title: 'VORP', align: 'right' },
+    { title: 'ADP', align: 'right' },
 ];
 
-const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickPredictorProps): JSX.Element => {
+const PickPredictor = ({ allPlayers, draftedPlayers }: PickPredictorProps): JSX.Element => {
+    const [settings] = useSettings();
+
+    const numberOfPicksToShow = Math.round(settings.teams.length * 2.5);
+
     const expectedPicks = React.useMemo(() => {
         return [...allPlayers]
             .filter((pd) => !draftedPlayers.includes(pd))
             .sort((a, b) => sortByStatistic(a.averageDraftPosition, b.averageDraftPosition, true))
-            .slice(0, Math.round(turnsUntilNextPick * (1 + (1 - adpStrictness))))
+            .slice(0, numberOfPicksToShow)
             .sort((a, b) => b.valueOverReplacement - a.valueOverReplacement);
-    }, [allPlayers, draftedPlayers]);
+    }, [allPlayers, draftedPlayers, settings]);
 
     return (
         <section className="h-2/5 overflow-y-auto py-4">
@@ -34,7 +37,7 @@ const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickP
                     Expected picks
                 </h2>
                 <p className="text-xs text-gray-500 italic">
-                    by your next turn
+                    in the next {numberOfPicksToShow} turns, ordered by VORP
                 </p>
             </div>
             <DataTable
@@ -55,6 +58,9 @@ const PickPredictor = ({ allPlayers, draftedPlayers, turnsUntilNextPick }: PickP
                         </DataTable.Cell>
                         <DataTable.Cell align="right">
                             {pd.valueOverReplacement.toFixed(1)}
+                        </DataTable.Cell>
+                        <DataTable.Cell align="right">
+                            {pd.averageDraftPosition?.toFixed(1)}
                         </DataTable.Cell>
                     </DataTable.Row>
                 ))}

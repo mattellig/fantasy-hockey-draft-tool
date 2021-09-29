@@ -136,7 +136,7 @@ const Data = (): JSX.Element => {
                 </ul>
             </fieldset>
             <div className="grid grid-cols-12 gap-4 mb-6">
-                <div className="col-span-6">
+                <div className="col-span-4">
                     {savedSourceIsFile && !showFileInput ? (
                         <>
                             <div className="block mb-1 text-sm font-medium text-gray-700">

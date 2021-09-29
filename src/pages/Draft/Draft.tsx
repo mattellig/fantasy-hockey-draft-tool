@@ -58,8 +58,6 @@ const Draft = (): JSX.Element => {
 
     const { data, loading } = usePlayerData();
 
-    const turnsUntilNextPick = draftPicks.slice(currentPickNumber).findIndex((dp) => dp.team.id === myTeamId) + 1;
-
     const draftedPlayers = React.useMemo(() => {
         return draftPicks
             .filter((dp) => dp.playerSelected !== null)
@@ -132,7 +130,7 @@ const Draft = (): JSX.Element => {
                                     {
                                         content: (
                                             <PlayersTable
-                                                canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
+                                                canDraftPlayers={draftStarted && currentPickNumber <= draftPicks.length}
                                                 data={data}
                                                 draftedPlayers={draftedPlayers}
                                                 loading={loading}
@@ -154,7 +152,6 @@ const Draft = (): JSX.Element => {
                             <DraftList
                                 currentPickNumber={currentPickNumber}
                                 draftPicks={draftPicks}
-                                turnsUntilNextPick={turnsUntilNextPick}
                             />
                         ) : null}
                     </section>
@@ -165,7 +162,6 @@ const Draft = (): JSX.Element => {
                                 <PickPredictor
                                     allPlayers={data!}
                                     draftedPlayers={draftedPlayers}
-                                    turnsUntilNextPick={turnsUntilNextPick}
                                 />
                             </>
                         ) : null}

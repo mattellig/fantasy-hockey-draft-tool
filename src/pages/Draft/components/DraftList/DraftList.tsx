@@ -7,17 +7,18 @@ import { DraftPick } from '../../Draft';
 interface DraftListProps {
     currentPickNumber: number;
     draftPicks: DraftPick[];
-    turnsUntilNextPick: number;
 }
 
-const DraftList = ({ currentPickNumber, draftPicks, turnsUntilNextPick }: DraftListProps): JSX.Element | null => {
+const DraftList = ({ currentPickNumber, draftPicks }: DraftListProps): JSX.Element | null => {
     const [settings] = useSettings();
+
+    const turnsUntilNextPick = draftPicks.slice(currentPickNumber).findIndex((dp) => dp.team.id === myTeamId) + 1;
+    const isCurrentPick = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId) === 0;
 
     const numberOfTeams = settings.teams.length;
     const currentRound = Math.floor((currentPickNumber - 1) / numberOfTeams) + 1;
-    const isCurrentPick = draftPicks.slice(currentPickNumber - 1).findIndex((dp) => dp.team.id === myTeamId) === 0;
 
-    if (currentPickNumber === draftPicks.length) {
+    if (currentPickNumber > draftPicks.length) {
         return (
             <div className="px-4 py-2 rounded-md bg-green-100 text-base text-green-900 font-medium transition-colors">
                 Draft complete!

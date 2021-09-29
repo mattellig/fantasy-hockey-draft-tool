@@ -83,6 +83,10 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
 
     const [settings] = useSettings();
 
+    React.useEffect(() => {
+        setPage(0);
+    }, [playerSearch, positionFilter, showDrafted]);
+
     const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), []);
     const tableHeadings = React.useMemo(() => {
         const headings = [...fixedHeadings];

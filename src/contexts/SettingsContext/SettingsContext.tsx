@@ -66,6 +66,54 @@ const SettingsContext = React.createContext<SettingsAndUpdater | undefined>(unde
 
 export const myTeamId = 0;
 
+export const acronymToSettingsMap: Record<string, keyof ScoringSettings> = {
+    G: 'goals',
+    A: 'assists',
+    PTS: 'points',
+    '+/-': 'plusMinus',
+    PIM: 'penaltyMinutes',
+    PPG: 'powerplayGoals',
+    PPA: 'powerplayAssists',
+    PPP: 'powerplayPoints',
+    GWG: 'gameWinningGoals',
+    SOG: 'shotsOnGoal',
+    FOW: 'faceoffsWon',
+    FOL: 'faceoffsLost',
+    HIT: 'hits',
+    BLK: 'blocks',
+    W: 'wins',
+    L: 'losses',
+    GA: 'goalsAgainst',
+    GAA: 'goalsAgainstAverage',
+    SV: 'saves',
+    'SV%': 'savePercentage',
+    SO: 'shutouts',
+};
+
+export const settingsToAcronymMap: Record<keyof ScoringSettings, string> = {
+    goals: 'G',
+    assists: 'A',
+    points: 'PTS',
+    plusMinus: '+/-',
+    penaltyMinutes: 'PIM',
+    powerplayGoals: 'PPG',
+    powerplayAssists: 'PPA',
+    powerplayPoints: 'PPP',
+    gameWinningGoals: 'GWG',
+    shotsOnGoal: 'SOG',
+    faceoffsWon: 'FOW',
+    faceoffsLost: 'FOL',
+    hits: 'HIT',
+    blocks: 'BLK',
+    wins: 'W',
+    losses: 'L',
+    goalsAgainst: 'GA',
+    goalsAgainstAverage: 'GAA',
+    saves: 'SV',
+    savePercentage: 'SV%',
+    shutouts: 'SO',
+};
+
 const defaultSettings: SettingsState = {
     data: {
         isTotal: true,

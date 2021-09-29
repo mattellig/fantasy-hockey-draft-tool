@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
 import { getLinkStyles } from '../../components/Link/Link';
+import Tabs from '../../components/Tabs/Tabs';
 import { toast } from '../../components/Toast/Toast';
 import { myTeamId, SettingsState, Team, useSettings } from '../../contexts/SettingsContext/SettingsContext';
 import usePlayerData, { PlayerData } from '../../hooks/usePlayerData/usePlayerData';
@@ -10,6 +11,7 @@ import DraftList from './components/DraftList/DraftList';
 import PickPredictor from './components/PickPredictor/PickPredictor';
 import PlayersTable from './components/PlayersTable/PlayersTable';
 import ResetModal from './components/ResetModal/ResetModal';
+import Standings from './components/Standings/Standings';
 import TeamSummary from './components/TeamSummary/TeamSummary';
 
 export interface DraftPick {
@@ -125,12 +127,25 @@ const Draft = (): JSX.Element => {
                             </div>
                         </div>
                         <section>
-                            <PlayersTable
-                                canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
-                                data={data}
-                                draftedPlayers={draftedPlayers}
-                                loading={loading}
-                                onDraftPlayer={handleDraftPlayer}
+                            <Tabs
+                                tabs={[
+                                    {
+                                        content: (
+                                            <PlayersTable
+                                                canDraftPlayers={draftStarted && currentPickNumber < draftPicks.length}
+                                                data={data}
+                                                draftedPlayers={draftedPlayers}
+                                                loading={loading}
+                                                onDraftPlayer={handleDraftPlayer}
+                                            />
+                                        ),
+                                        title: 'Players',
+                                    },
+                                    {
+                                        content: <Standings draftPicks={draftPicks} />,
+                                        title: 'Standings',
+                                    },
+                                ]}
                             />
                         </section>
                     </div>

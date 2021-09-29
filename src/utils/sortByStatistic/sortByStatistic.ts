@@ -1,4 +1,4 @@
-const sortByPlayerStat = (a: number | null, b: number | null, ascending: boolean) => {
+const sortByStatistic = (a: number | null, b: number | null, ascending: boolean) => {
     if (a === b) {
         return 0;
     }
@@ -14,4 +14,4 @@ const sortByPlayerStat = (a: number | null, b: number | null, ascending: boolean
     return (a - b) * (ascending ? 1 : -1);
 };
 
-export default sortByPlayerStat;
+export default sortByStatistic;

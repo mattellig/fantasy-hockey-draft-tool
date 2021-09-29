@@ -1,14 +1,13 @@
 import * as React from 'react';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
-import DataTable from '../../../../components/DataTable/DataTable';
+import DataTable, { DataTableHeading } from '../../../../components/DataTable/DataTable';
 import Input from '../../../../components/Input/Input';
 import Select from '../../../../components/Select/Select';
 import Spinner from '../../../../components/Spinner/Spinner';
-import { ScoringSettings, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
+import { acronymToSettingsMap, ScoringSettings, settingsToAcronymMap, useSettings } from '../../../../contexts/SettingsContext/SettingsContext';
 import { PlayerData, PlayerStats } from '../../../../hooks/usePlayerData/usePlayerData';
-import sortByPlayerStat from '../../../../utils/sortByPlayerStat/sortByPlayerStat';
-import useTableHeadings from './useTableHeadings';
+import sortByStatistic from '../../../../utils/sortByStatistic/sortByStatistic';
 
 interface PlayersTableProps {
     canDraftPlayers: boolean;
@@ -18,29 +17,18 @@ interface PlayersTableProps {
     onDraftPlayer: (player: PlayerData) => void;
 }
 
-const headingsToSettingsMap: Record<string, keyof ScoringSettings> = {
-    G: 'goals',
-    A: 'assists',
-    PTS: 'points',
-    '+/-': 'plusMinus',
-    PIM: 'penaltyMinutes',
-    PPG: 'powerplayGoals',
-    PPA: 'powerplayAssists',
-    PPP: 'powerplayPoints',
-    GWG: 'gameWinningGoals',
-    SOG: 'shotsOnGoal',
-    FOW: 'faceoffsWon',
-    FOL: 'faceoffsLost',
-    HIT: 'hits',
-    BLK: 'blocks',
-    W: 'wins',
-    L: 'losses',
-    GA: 'goalsAgainst',
-    GAA: 'goalsAgainstAverage',
-    SV: 'saves',
-    'SV%': 'savePercentage',
-    SO: 'shutouts',
-};
+const fixedHeadings: DataTableHeading[] = [
+    { title: 'Rank', align: 'right', sortable: true },
+    { title: 'Name' },
+    { title: 'Team', align: 'center' },
+    { title: 'Pos', align: 'center' },
+    { title: 'Draft', align: 'center' },
+    { title: 'FP', align: 'right', defaultSortDirection: 'descending', sortable: true },
+    { title: 'VORP', align: 'right', defaultSortDirection: 'descending', sortable: true },
+    { title: 'ADP', align: 'right', sortable: true },
+    { title: 'Diff.', align: 'right', defaultSortDirection: 'descending', sortable: true },
+    { title: 'GP', align: 'right', defaultSortDirection: 'descending', sortable: true },
+];
 
 const positionFilterOptions = [
     'All positions',
@@ -85,7 +73,22 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
     const [settings] = useSettings();
 
     const scoringSettingEntries = React.useMemo(() => Object.entries(settings.scoring), [settings]);
-    const tableHeadings = useTableHeadings(scoringSettingEntries);
+    const tableHeadings = React.useMemo(() => {
+        const headings = [...fixedHeadings];
+
+        for (const [key, value] of scoringSettingEntries) {
+            if (value) {
+                headings.push({
+                    align: 'right',
+                    defaultSortDirection: 'descending',
+                    sortable: true,
+                    title: settingsToAcronymMap[key as keyof ScoringSettings],
+                });
+            }
+        }
+
+        return headings;
+    }, [scoringSettingEntries]);
 
     const sortedData = React.useMemo(() => {
         if (!data) return undefined;
@@ -95,50 +98,50 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
         const columnToSort = tableHeadings[sort.index]?.title;
         switch (columnToSort) {
             case 'Rank':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.rank,
                     b.rank,
                     sort.direction === 'ascending',
                 ));
                 break;
             case 'FP':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.fantasyPoints,
                     b.fantasyPoints,
                     sort.direction === 'ascending',
                 ));
                 break;
             case 'VORP':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.valueOverReplacement,
                     b.valueOverReplacement,
                     sort.direction === 'ascending',
                 ));
                 break;
             case 'ADP':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.averageDraftPosition,
                     b.averageDraftPosition,
                     sort.direction === 'ascending',
                 ));
                 break;
             case 'Diff.':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.difference,
                     b.difference,
                     sort.direction === 'ascending',
                 ));
                 break;
             case 'GP':
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.gamesPlayed,
                     b.gamesPlayed,
                     sort.direction === 'ascending',
                 ));
                 break;
             default: {
-                const key = headingsToSettingsMap[columnToSort];
-                compareFn = ((a: PlayerData, b: PlayerData) => sortByPlayerStat(
+                const key = acronymToSettingsMap[columnToSort];
+                compareFn = ((a: PlayerData, b: PlayerData) => sortByStatistic(
                     a.totals[key],
                     b.totals[key],
                     sort.direction === 'ascending',
@@ -148,7 +151,7 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
         }
 
         return [...data].sort(compareFn);
-    }, [data, sort]);
+    }, [data, sort, tableHeadings]);
 
     const filteredData = React.useMemo(() => {
         if (!sortedData) return undefined;
@@ -187,10 +190,10 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
 
     return (
         <>
+            <h2 className="sr-only">
+                Players
+            </h2>
             <div className="px-4 md:px-6 mb-4">
-                <h2 className="mb-2 text-lg font-medium text-gray-800">
-                    Players
-                </h2>
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-3">
                         <Input

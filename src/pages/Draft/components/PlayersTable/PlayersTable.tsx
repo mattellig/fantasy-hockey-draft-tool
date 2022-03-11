@@ -208,7 +208,7 @@ const PlayersTable = (props: PlayersTableProps): JSX.Element => {
             <h2 className="sr-only">
                 Players
             </h2>
-            <div className="px-1 mb-4">
+            <div className="px-4 sm:px-6 mb-4">
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-3">
                         <Input
